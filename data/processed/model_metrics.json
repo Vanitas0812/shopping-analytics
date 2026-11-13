@@ -1,0 +1,274 @@
+{
+  "generatedAt": "2026-11-04 09:42:25",
+  "split": {
+    "testSize": 0.2,
+    "randomState": 42,
+    "stratify": "Revenue",
+    "trainRows": 9764,
+    "testRows": 2441
+  },
+  "metrics": [
+    {
+      "modelName": "LogisticRegression",
+      "accuracy": 0.8894,
+      "auc": 0.9021,
+      "precision": 0.7718,
+      "recall": 0.4162,
+      "f1": 0.5408
+    },
+    {
+      "modelName": "RandomForest",
+      "accuracy": 0.907,
+      "auc": 0.9293,
+      "precision": 0.7663,
+      "recall": 0.5838,
+      "f1": 0.6627
+    }
+  ],
+  "confusion": [
+    {
+      "modelName": "LogisticRegression",
+      "tp": 159,
+      "fp": 47,
+      "tn": 2012,
+      "fn": 223
+    },
+    {
+      "modelName": "RandomForest",
+      "tp": 223,
+      "fp": 68,
+      "tn": 1991,
+      "fn": 159
+    }
+  ],
+  "featureImportance": [
+    {
+      "featureKey": "PageValues",
+      "featureCn": "页面价值分",
+      "importance": 0.358825,
+      "rankNo": 1
+    },
+    {
+      "featureKey": "ProductRelated_Duration",
+      "featureCn": "商品类停留时长",
+      "importance": 0.089679,
+      "rankNo": 2
+    },
+    {
+      "featureKey": "ExitRates",
+      "featureCn": "退出率",
+      "importance": 0.087277,
+      "rankNo": 3
+    },
+    {
+      "featureKey": "ProductRelated",
+      "featureCn": "商品类页面访问数",
+      "importance": 0.071581,
+      "rankNo": 4
+    },
+    {
+      "featureKey": "Month",
+      "featureCn": "访问月份",
+      "importance": 0.059579,
+      "rankNo": 5
+    },
+    {
+      "featureKey": "Administrative_Duration",
+      "featureCn": "管理类停留时长",
+      "importance": 0.056759,
+      "rankNo": 6
+    },
+    {
+      "featureKey": "BounceRates",
+      "featureCn": "跳出率",
+      "importance": 0.05649,
+      "rankNo": 7
+    },
+    {
+      "featureKey": "Administrative",
+      "featureCn": "管理类页面访问数",
+      "importance": 0.043631,
+      "rankNo": 8
+    },
+    {
+      "featureKey": "TrafficType",
+      "featureCn": "流量类型编码",
+      "importance": 0.031944,
+      "rankNo": 9
+    },
+    {
+      "featureKey": "Region",
+      "featureCn": "区域编码",
+      "importance": 0.031088,
+      "rankNo": 10
+    },
+    {
+      "featureKey": "Informational_Duration",
+      "featureCn": "信息类停留时长",
+      "importance": 0.026818,
+      "rankNo": 11
+    },
+    {
+      "featureKey": "Browser",
+      "featureCn": "浏览器编码",
+      "importance": 0.019919,
+      "rankNo": 12
+    }
+  ],
+  "featureImportanceAll": [
+    {
+      "featureKey": "PageValues",
+      "featureCn": "页面价值分",
+      "importance": 0.358825,
+      "rankNo": 1
+    },
+    {
+      "featureKey": "ProductRelated_Duration",
+      "featureCn": "商品类停留时长",
+      "importance": 0.089679,
+      "rankNo": 2
+    },
+    {
+      "featureKey": "ExitRates",
+      "featureCn": "退出率",
+      "importance": 0.087277,
+      "rankNo": 3
+    },
+    {
+      "featureKey": "ProductRelated",
+      "featureCn": "商品类页面访问数",
+      "importance": 0.071581,
+      "rankNo": 4
+    },
+    {
+      "featureKey": "Month",
+      "featureCn": "访问月份",
+      "importance": 0.059579,
+      "rankNo": 5
+    },
+    {
+      "featureKey": "Administrative_Duration",
+      "featureCn": "管理类停留时长",
+      "importance": 0.056759,
+      "rankNo": 6
+    },
+    {
+      "featureKey": "BounceRates",
+      "featureCn": "跳出率",
+      "importance": 0.05649,
+      "rankNo": 7
+    },
+    {
+      "featureKey": "Administrative",
+      "featureCn": "管理类页面访问数",
+      "importance": 0.043631,
+      "rankNo": 8
+    },
+    {
+      "featureKey": "TrafficType",
+      "featureCn": "流量类型编码",
+      "importance": 0.031944,
+      "rankNo": 9
+    },
+    {
+      "featureKey": "Region",
+      "featureCn": "区域编码",
+      "importance": 0.031088,
+      "rankNo": 10
+    },
+    {
+      "featureKey": "Informational_Duration",
+      "featureCn": "信息类停留时长",
+      "importance": 0.026818,
+      "rankNo": 11
+    },
+    {
+      "featureKey": "Browser",
+      "featureCn": "浏览器编码",
+      "importance": 0.019919,
+      "rankNo": 12
+    },
+    {
+      "featureKey": "OperatingSystems",
+      "featureCn": "操作系统编码",
+      "importance": 0.01797,
+      "rankNo": 13
+    },
+    {
+      "featureKey": "Informational",
+      "featureCn": "信息类页面访问数",
+      "importance": 0.017648,
+      "rankNo": 14
+    },
+    {
+      "featureKey": "VisitorType",
+      "featureCn": "访客类型",
+      "importance": 0.015568,
+      "rankNo": 15
+    },
+    {
+      "featureKey": "weekend_i",
+      "featureCn": "是否周末",
+      "importance": 0.011467,
+      "rankNo": 16
+    },
+    {
+      "featureKey": "SpecialDay",
+      "featureCn": "特殊日期接近度",
+      "importance": 0.003758,
+      "rankNo": 17
+    }
+  ],
+  "lrCoefficientsTop12": [
+    {
+      "feature": "PageValues",
+      "coef": 1.5308
+    },
+    {
+      "feature": "ExitRates",
+      "coef": -0.7992
+    },
+    {
+      "feature": "Month_Nov",
+      "coef": 0.319
+    },
+    {
+      "feature": "Month_Feb",
+      "coef": -0.1653
+    },
+    {
+      "feature": "Month_May",
+      "coef": -0.1432
+    },
+    {
+      "feature": "ProductRelated_Duration",
+      "coef": 0.1416
+    },
+    {
+      "feature": "Month_Dec",
+      "coef": -0.1414
+    },
+    {
+      "feature": "Month_Mar",
+      "coef": -0.1081
+    },
+    {
+      "feature": "BounceRates",
+      "coef": -0.0959
+    },
+    {
+      "feature": "Month_Oct",
+      "coef": 0.0661
+    },
+    {
+      "feature": "Administrative_Duration",
+      "coef": -0.0646
+    },
+    {
+      "feature": "OperatingSystems",
+      "coef": -0.0613
+    }
+  ],
+  "bestModel": "RandomForest",
+  "bestMetricRule": "取测试集 AUC 最高者为最优模型，用于 is_best 标记"
+}

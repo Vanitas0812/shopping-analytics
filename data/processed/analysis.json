@@ -1,0 +1,1657 @@
+{
+  "meta": {
+    "generatedAt": "2026-11-04 09:42:25",
+    "sourceFile": "data/raw/online_shoppers_intention.csv",
+    "cleanFile": "data/processed/session_cleaned.csv",
+    "rawRows": 12330,
+    "rawColumns": 18,
+    "removedDuplicates": 125,
+    "cleanRows": 12205,
+    "cleanColumns": 22,
+    "targetColumn": "Revenue",
+    "conversionRate": 0.1563,
+    "monthCoverage": [
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12
+    ],
+    "monthMissing": [
+      1,
+      4
+    ],
+    "note": "OS/Browser/Region/TrafficType 为原始数据集匿名编码，未提供编码字典，全部按编码分组分析，不映射业务名称。"
+  },
+  "globalKpi": {
+    "totalSessions": 12205,
+    "totalRevenue": 1908,
+    "conversionRate": 0.1563,
+    "avgPageDepth": 34.8932,
+    "avgDuration": 1323.4542,
+    "bounceRate": 0.0204,
+    "exitRate": 0.0415,
+    "newVisitorRate": 0.1387,
+    "returningRate": 0.8546,
+    "otherVisitorRate": 0.0066,
+    "bounceSessionRate": 0.0471,
+    "newVisitorSessions": 1693,
+    "returningSessions": 10431,
+    "otherSessions": 81,
+    "weekendSessions": 2859,
+    "weekendRate": 0.2342,
+    "avgProductRelated": 32.0456,
+    "avgPageValues": 5.9496,
+    "zeroPageValuesRate": 0.7763,
+    "nonZeroPageValuesSessions": 2730,
+    "revenueFromNonZeroPageValues": 0.8061,
+    "avgSpecialDay": 0.0619
+  },
+  "monthlyTrend": [
+    {
+      "monthNum": 1,
+      "monthName": "Jan",
+      "monthCn": "1月",
+      "sessions": 0,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.0,
+      "avgPageDepth": 0.0,
+      "avgDuration": 0.0,
+      "avgPageValues": 0.0,
+      "avgBounceRate": 0.0,
+      "hasData": false
+    },
+    {
+      "monthNum": 2,
+      "monthName": "Feb",
+      "monthCn": "2月",
+      "sessions": 181,
+      "conversions": 3,
+      "conversionRate": 0.0166,
+      "pct": 0.0148,
+      "avgPageDepth": 11.9945,
+      "avgDuration": 498.399,
+      "avgPageValues": 0.9051,
+      "avgBounceRate": 0.0445,
+      "hasData": true
+    },
+    {
+      "monthNum": 3,
+      "monthName": "Mar",
+      "monthCn": "3月",
+      "sessions": 1860,
+      "conversions": 192,
+      "conversionRate": 0.1032,
+      "pct": 0.1524,
+      "avgPageDepth": 22.6484,
+      "avgDuration": 937.2887,
+      "avgPageValues": 4.0597,
+      "avgBounceRate": 0.0172,
+      "hasData": true
+    },
+    {
+      "monthNum": 4,
+      "monthName": "Apr",
+      "monthCn": "4月",
+      "sessions": 0,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.0,
+      "avgPageDepth": 0.0,
+      "avgDuration": 0.0,
+      "avgPageValues": 0.0,
+      "avgBounceRate": 0.0,
+      "hasData": false
+    },
+    {
+      "monthNum": 5,
+      "monthName": "May",
+      "monthCn": "5月",
+      "sessions": 3329,
+      "conversions": 365,
+      "conversionRate": 0.1096,
+      "pct": 0.2728,
+      "avgPageDepth": 29.1691,
+      "avgDuration": 1089.8673,
+      "avgPageValues": 5.4887,
+      "avgBounceRate": 0.025,
+      "hasData": true
+    },
+    {
+      "monthNum": 6,
+      "monthName": "June",
+      "monthCn": "6月",
+      "sessions": 285,
+      "conversions": 29,
+      "conversionRate": 0.1018,
+      "pct": 0.0234,
+      "avgPageDepth": 39.3018,
+      "avgDuration": 1306.5684,
+      "avgPageValues": 3.4271,
+      "avgBounceRate": 0.0334,
+      "hasData": true
+    },
+    {
+      "monthNum": 7,
+      "monthName": "Jul",
+      "monthCn": "7月",
+      "sessions": 432,
+      "conversions": 66,
+      "conversionRate": 0.1528,
+      "pct": 0.0354,
+      "avgPageDepth": 39.3472,
+      "avgDuration": 1341.9988,
+      "avgPageValues": 4.1044,
+      "avgBounceRate": 0.0247,
+      "hasData": true
+    },
+    {
+      "monthNum": 8,
+      "monthName": "Aug",
+      "monthCn": "8月",
+      "sessions": 433,
+      "conversions": 76,
+      "conversionRate": 0.1755,
+      "pct": 0.0355,
+      "avgPageDepth": 41.9376,
+      "avgDuration": 1414.8853,
+      "avgPageValues": 5.9381,
+      "avgBounceRate": 0.0182,
+      "hasData": true
+    },
+    {
+      "monthNum": 9,
+      "monthName": "Sep",
+      "monthCn": "9月",
+      "sessions": 448,
+      "conversions": 86,
+      "conversionRate": 0.192,
+      "pct": 0.0367,
+      "avgPageDepth": 37.0067,
+      "avgDuration": 1398.4504,
+      "avgPageValues": 7.5568,
+      "avgBounceRate": 0.0122,
+      "hasData": true
+    },
+    {
+      "monthNum": 10,
+      "monthName": "Oct",
+      "monthCn": "10月",
+      "sessions": 549,
+      "conversions": 115,
+      "conversionRate": 0.2095,
+      "pct": 0.045,
+      "avgPageDepth": 37.7741,
+      "avgDuration": 1281.584,
+      "avgPageValues": 8.6456,
+      "avgBounceRate": 0.0118,
+      "hasData": true
+    },
+    {
+      "monthNum": 11,
+      "monthName": "Nov",
+      "monthCn": "11月",
+      "sessions": 2982,
+      "conversions": 760,
+      "conversionRate": 0.2549,
+      "pct": 0.2443,
+      "avgPageDepth": 49.5614,
+      "avgDuration": 1903.1229,
+      "avgPageValues": 7.1676,
+      "avgBounceRate": 0.0183,
+      "hasData": true
+    },
+    {
+      "monthNum": 12,
+      "monthName": "Dec",
+      "monthCn": "12月",
+      "sessions": 1706,
+      "conversions": 216,
+      "conversionRate": 0.1266,
+      "pct": 0.1398,
+      "avgPageDepth": 31.0692,
+      "avgDuration": 1243.2912,
+      "avgPageValues": 6.9174,
+      "avgBounceRate": 0.0179,
+      "hasData": true
+    }
+  ],
+  "monthlyInsight": {
+    "peakMonth": "5月",
+    "peakMonthSessions": 3329,
+    "peakMonthPct": 0.2728,
+    "highestConversionMonth": "11月",
+    "highestConversionRate": 0.2549,
+    "lowestConversionMonth": "2月",
+    "lowestConversionRate": 0.0166
+  },
+  "visitorType": [
+    {
+      "visitorType": "Returning_Visitor",
+      "sessions": 10431,
+      "conversions": 1470,
+      "conversionRate": 0.1409,
+      "pct": 0.8546,
+      "avgPageDepth": 37.3122,
+      "avgDuration": 1421.8786,
+      "avgBounceRate": 0.0228,
+      "avgExitRate": 0.0447,
+      "avgPageValues": 5.0638
+    },
+    {
+      "visitorType": "New_Visitor",
+      "sessions": 1693,
+      "conversions": 422,
+      "conversionRate": 0.2493,
+      "pct": 0.1387,
+      "avgPageDepth": 20.9522,
+      "avgDuration": 747.9837,
+      "avgBounceRate": 0.0051,
+      "avgExitRate": 0.0206,
+      "avgPageValues": 10.7786
+    },
+    {
+      "visitorType": "Other",
+      "sessions": 81,
+      "conversions": 16,
+      "conversionRate": 0.1975,
+      "pct": 0.0066,
+      "avgPageDepth": 14.7654,
+      "avgDuration": 676.6272,
+      "avgBounceRate": 0.0306,
+      "avgExitRate": 0.0566,
+      "avgPageValues": 19.0902
+    }
+  ],
+  "trafficSource": [
+    {
+      "trafficType": 2,
+      "sessions": 3911,
+      "conversions": 847,
+      "conversionRate": 0.2166,
+      "pct": 0.3204,
+      "avgPageDepth": 41.775,
+      "avgDuration": 1619.7945,
+      "avgPageValues": 8.3086,
+      "avgBounceRate": 0.0084,
+      "avgExitRate": 0.0263
+    },
+    {
+      "trafficType": 1,
+      "sessions": 2388,
+      "conversions": 262,
+      "conversionRate": 0.1097,
+      "pct": 0.1957,
+      "avgPageDepth": 35.0783,
+      "avgDuration": 1358.088,
+      "avgPageValues": 3.5462,
+      "avgBounceRate": 0.0279,
+      "avgExitRate": 0.0519
+    },
+    {
+      "trafficType": 3,
+      "sessions": 2013,
+      "conversions": 180,
+      "conversionRate": 0.0894,
+      "pct": 0.1649,
+      "avgPageDepth": 28.4282,
+      "avgDuration": 987.1374,
+      "avgPageValues": 3.3395,
+      "avgBounceRate": 0.0301,
+      "avgExitRate": 0.0543
+    },
+    {
+      "trafficType": 4,
+      "sessions": 1066,
+      "conversions": 165,
+      "conversionRate": 0.1548,
+      "pct": 0.0873,
+      "avgPageDepth": 31.4587,
+      "avgDuration": 1097.9042,
+      "avgPageValues": 7.0629,
+      "avgBounceRate": 0.0157,
+      "avgExitRate": 0.0357
+    },
+    {
+      "trafficType": 13,
+      "sessions": 728,
+      "conversions": 43,
+      "conversionRate": 0.0591,
+      "pct": 0.0596,
+      "avgPageDepth": 35.5714,
+      "avgDuration": 1376.2695,
+      "avgPageValues": 2.3869,
+      "avgBounceRate": 0.0466,
+      "avgExitRate": 0.0686
+    },
+    {
+      "trafficType": 10,
+      "sessions": 450,
+      "conversions": 90,
+      "conversionRate": 0.2,
+      "pct": 0.0369,
+      "avgPageDepth": 35.7511,
+      "avgDuration": 1365.2331,
+      "avgPageValues": 6.2082,
+      "avgBounceRate": 0.0166,
+      "avgExitRate": 0.0379
+    },
+    {
+      "trafficType": 6,
+      "sessions": 443,
+      "conversions": 53,
+      "conversionRate": 0.1196,
+      "pct": 0.0363,
+      "avgPageDepth": 32.1648,
+      "avgDuration": 1241.9833,
+      "avgPageValues": 5.0877,
+      "avgBounceRate": 0.0217,
+      "avgExitRate": 0.0451
+    },
+    {
+      "trafficType": 8,
+      "sessions": 343,
+      "conversions": 95,
+      "conversionRate": 0.277,
+      "pct": 0.0281,
+      "avgPageDepth": 29.4985,
+      "avgDuration": 1229.4137,
+      "avgPageValues": 10.3024,
+      "avgBounceRate": 0.0115,
+      "avgExitRate": 0.0296
+    },
+    {
+      "trafficType": 5,
+      "sessions": 260,
+      "conversions": 56,
+      "conversionRate": 0.2154,
+      "pct": 0.0213,
+      "avgPageDepth": 21.8423,
+      "avgDuration": 868.3459,
+      "avgPageValues": 7.7125,
+      "avgBounceRate": 0.0095,
+      "avgExitRate": 0.0297
+    },
+    {
+      "trafficType": 11,
+      "sessions": 247,
+      "conversions": 47,
+      "conversionRate": 0.1903,
+      "pct": 0.0202,
+      "avgPageDepth": 27.3441,
+      "avgDuration": 981.7608,
+      "avgPageValues": 5.0686,
+      "avgBounceRate": 0.0222,
+      "avgExitRate": 0.0438
+    }
+  ],
+  "trafficTypeAll": [
+    {
+      "trafficType": 2,
+      "sessions": 3911,
+      "conversions": 847,
+      "conversionRate": 0.2166,
+      "pct": 0.3204,
+      "avgPageDepth": 41.775,
+      "avgDuration": 1619.7945,
+      "avgPageValues": 8.3086,
+      "avgBounceRate": 0.0084,
+      "avgExitRate": 0.0263
+    },
+    {
+      "trafficType": 1,
+      "sessions": 2388,
+      "conversions": 262,
+      "conversionRate": 0.1097,
+      "pct": 0.1957,
+      "avgPageDepth": 35.0783,
+      "avgDuration": 1358.088,
+      "avgPageValues": 3.5462,
+      "avgBounceRate": 0.0279,
+      "avgExitRate": 0.0519
+    },
+    {
+      "trafficType": 3,
+      "sessions": 2013,
+      "conversions": 180,
+      "conversionRate": 0.0894,
+      "pct": 0.1649,
+      "avgPageDepth": 28.4282,
+      "avgDuration": 987.1374,
+      "avgPageValues": 3.3395,
+      "avgBounceRate": 0.0301,
+      "avgExitRate": 0.0543
+    },
+    {
+      "trafficType": 4,
+      "sessions": 1066,
+      "conversions": 165,
+      "conversionRate": 0.1548,
+      "pct": 0.0873,
+      "avgPageDepth": 31.4587,
+      "avgDuration": 1097.9042,
+      "avgPageValues": 7.0629,
+      "avgBounceRate": 0.0157,
+      "avgExitRate": 0.0357
+    },
+    {
+      "trafficType": 13,
+      "sessions": 728,
+      "conversions": 43,
+      "conversionRate": 0.0591,
+      "pct": 0.0596,
+      "avgPageDepth": 35.5714,
+      "avgDuration": 1376.2695,
+      "avgPageValues": 2.3869,
+      "avgBounceRate": 0.0466,
+      "avgExitRate": 0.0686
+    },
+    {
+      "trafficType": 10,
+      "sessions": 450,
+      "conversions": 90,
+      "conversionRate": 0.2,
+      "pct": 0.0369,
+      "avgPageDepth": 35.7511,
+      "avgDuration": 1365.2331,
+      "avgPageValues": 6.2082,
+      "avgBounceRate": 0.0166,
+      "avgExitRate": 0.0379
+    },
+    {
+      "trafficType": 6,
+      "sessions": 443,
+      "conversions": 53,
+      "conversionRate": 0.1196,
+      "pct": 0.0363,
+      "avgPageDepth": 32.1648,
+      "avgDuration": 1241.9833,
+      "avgPageValues": 5.0877,
+      "avgBounceRate": 0.0217,
+      "avgExitRate": 0.0451
+    },
+    {
+      "trafficType": 8,
+      "sessions": 343,
+      "conversions": 95,
+      "conversionRate": 0.277,
+      "pct": 0.0281,
+      "avgPageDepth": 29.4985,
+      "avgDuration": 1229.4137,
+      "avgPageValues": 10.3024,
+      "avgBounceRate": 0.0115,
+      "avgExitRate": 0.0296
+    },
+    {
+      "trafficType": 5,
+      "sessions": 260,
+      "conversions": 56,
+      "conversionRate": 0.2154,
+      "pct": 0.0213,
+      "avgPageDepth": 21.8423,
+      "avgDuration": 868.3459,
+      "avgPageValues": 7.7125,
+      "avgBounceRate": 0.0095,
+      "avgExitRate": 0.0297
+    },
+    {
+      "trafficType": 11,
+      "sessions": 247,
+      "conversions": 47,
+      "conversionRate": 0.1903,
+      "pct": 0.0202,
+      "avgPageDepth": 27.3441,
+      "avgDuration": 981.7608,
+      "avgPageValues": 5.0686,
+      "avgBounceRate": 0.0222,
+      "avgExitRate": 0.0438
+    },
+    {
+      "trafficType": 20,
+      "sessions": 193,
+      "conversions": 50,
+      "conversionRate": 0.2591,
+      "pct": 0.0158,
+      "avgPageDepth": 23.0363,
+      "avgDuration": 862.2753,
+      "avgPageValues": 15.5203,
+      "avgBounceRate": 0.0231,
+      "avgExitRate": 0.0436
+    },
+    {
+      "trafficType": 9,
+      "sessions": 41,
+      "conversions": 4,
+      "conversionRate": 0.0976,
+      "pct": 0.0034,
+      "avgPageDepth": 17.4146,
+      "avgDuration": 660.7826,
+      "avgPageValues": 3.9117,
+      "avgBounceRate": 0.0221,
+      "avgExitRate": 0.0416
+    },
+    {
+      "trafficType": 7,
+      "sessions": 40,
+      "conversions": 12,
+      "conversionRate": 0.3,
+      "pct": 0.0033,
+      "avgPageDepth": 32.6,
+      "avgDuration": 1150.5997,
+      "avgPageValues": 13.5673,
+      "avgBounceRate": 0.0078,
+      "avgExitRate": 0.0248
+    },
+    {
+      "trafficType": 15,
+      "sessions": 37,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.003,
+      "avgPageDepth": 18.3784,
+      "avgDuration": 627.3589,
+      "avgPageValues": 0.0375,
+      "avgBounceRate": 0.0664,
+      "avgExitRate": 0.0868
+    },
+    {
+      "trafficType": 19,
+      "sessions": 17,
+      "conversions": 1,
+      "conversionRate": 0.0588,
+      "pct": 0.0014,
+      "avgPageDepth": 41.3529,
+      "avgDuration": 1677.0104,
+      "avgPageValues": 3.4975,
+      "avgBounceRate": 0.0258,
+      "avgExitRate": 0.0498
+    },
+    {
+      "trafficType": 14,
+      "sessions": 13,
+      "conversions": 2,
+      "conversionRate": 0.1538,
+      "pct": 0.0011,
+      "avgPageDepth": 85.0769,
+      "avgDuration": 4667.302,
+      "avgPageValues": 4.9361,
+      "avgBounceRate": 0.0024,
+      "avgExitRate": 0.024
+    },
+    {
+      "trafficType": 18,
+      "sessions": 10,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.0008,
+      "avgPageDepth": 16.3,
+      "avgDuration": 601.9661,
+      "avgPageValues": 0.0,
+      "avgBounceRate": 0.0331,
+      "avgExitRate": 0.0531
+    },
+    {
+      "trafficType": 16,
+      "sessions": 3,
+      "conversions": 1,
+      "conversionRate": 0.3333,
+      "pct": 0.0002,
+      "avgPageDepth": 18.3333,
+      "avgDuration": 899.1889,
+      "avgPageValues": 0.0,
+      "avgBounceRate": 0.0,
+      "avgExitRate": 0.018
+    },
+    {
+      "trafficType": 12,
+      "sessions": 1,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.0001,
+      "avgPageDepth": 3.0,
+      "avgDuration": 15.0,
+      "avgPageValues": 0.0,
+      "avgBounceRate": 0.0,
+      "avgExitRate": 0.0667
+    },
+    {
+      "trafficType": 17,
+      "sessions": 1,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.0001,
+      "avgPageDepth": 4.0,
+      "avgDuration": 60.0,
+      "avgPageValues": 0.0,
+      "avgBounceRate": 0.05,
+      "avgExitRate": 0.075
+    }
+  ],
+  "trafficEfficiencyTop5": [
+    {
+      "trafficType": 8,
+      "sessions": 343,
+      "conversions": 95,
+      "conversionRate": 0.277,
+      "pct": 0.0281,
+      "avgPageDepth": 29.4985,
+      "avgDuration": 1229.4137,
+      "avgPageValues": 10.3024,
+      "avgBounceRate": 0.0115,
+      "avgExitRate": 0.0296
+    },
+    {
+      "trafficType": 20,
+      "sessions": 193,
+      "conversions": 50,
+      "conversionRate": 0.2591,
+      "pct": 0.0158,
+      "avgPageDepth": 23.0363,
+      "avgDuration": 862.2753,
+      "avgPageValues": 15.5203,
+      "avgBounceRate": 0.0231,
+      "avgExitRate": 0.0436
+    },
+    {
+      "trafficType": 2,
+      "sessions": 3911,
+      "conversions": 847,
+      "conversionRate": 0.2166,
+      "pct": 0.3204,
+      "avgPageDepth": 41.775,
+      "avgDuration": 1619.7945,
+      "avgPageValues": 8.3086,
+      "avgBounceRate": 0.0084,
+      "avgExitRate": 0.0263
+    },
+    {
+      "trafficType": 5,
+      "sessions": 260,
+      "conversions": 56,
+      "conversionRate": 0.2154,
+      "pct": 0.0213,
+      "avgPageDepth": 21.8423,
+      "avgDuration": 868.3459,
+      "avgPageValues": 7.7125,
+      "avgBounceRate": 0.0095,
+      "avgExitRate": 0.0297
+    },
+    {
+      "trafficType": 10,
+      "sessions": 450,
+      "conversions": 90,
+      "conversionRate": 0.2,
+      "pct": 0.0369,
+      "avgPageDepth": 35.7511,
+      "avgDuration": 1365.2331,
+      "avgPageValues": 6.2082,
+      "avgBounceRate": 0.0166,
+      "avgExitRate": 0.0379
+    }
+  ],
+  "trafficEfficiencyMinSessions": 100,
+  "pageDepthBins": [
+    {
+      "depthLabel": "1-5",
+      "binLabel": "1-5",
+      "sessions": 1934,
+      "conversions": 67,
+      "conversionRate": 0.0346,
+      "pct": 0.1585,
+      "avgPageValues": 0.8433
+    },
+    {
+      "depthLabel": "6-15",
+      "binLabel": "6-15",
+      "sessions": 3036,
+      "conversions": 341,
+      "conversionRate": 0.1123,
+      "pct": 0.2488,
+      "avgPageValues": 4.6203
+    },
+    {
+      "depthLabel": "16-30",
+      "binLabel": "16-30",
+      "sessions": 2861,
+      "conversions": 495,
+      "conversionRate": 0.173,
+      "pct": 0.2344,
+      "avgPageValues": 7.0848
+    },
+    {
+      "depthLabel": "31-60",
+      "binLabel": "31-60",
+      "sessions": 2476,
+      "conversions": 511,
+      "conversionRate": 0.2064,
+      "pct": 0.2029,
+      "avgPageValues": 8.7887
+    },
+    {
+      "depthLabel": "60+",
+      "binLabel": "60+",
+      "sessions": 1898,
+      "conversions": 494,
+      "conversionRate": 0.2603,
+      "pct": 0.1555,
+      "avgPageValues": 7.8641
+    }
+  ],
+  "pageDepthZeroSessions": 6,
+  "bounceRateBins": [
+    {
+      "rangeLabel": "=0",
+      "binLabel": "=0",
+      "sessions": 5518,
+      "conversions": 1036,
+      "conversionRate": 0.1877,
+      "pct": 0.4521,
+      "avgPageValues": 8.2154
+    },
+    {
+      "rangeLabel": "0-0.02",
+      "binLabel": "0-0.02",
+      "sessions": 4115,
+      "conversions": 765,
+      "conversionRate": 0.1859,
+      "pct": 0.3372,
+      "avgPageValues": 5.8302
+    },
+    {
+      "rangeLabel": "0.02-0.05",
+      "binLabel": "0.02-0.05",
+      "sessions": 1381,
+      "conversions": 90,
+      "conversionRate": 0.0652,
+      "pct": 0.1132,
+      "avgPageValues": 2.1781
+    },
+    {
+      "rangeLabel": "0.05-0.1",
+      "binLabel": "0.05-0.1",
+      "sessions": 500,
+      "conversions": 13,
+      "conversionRate": 0.026,
+      "pct": 0.041,
+      "avgPageValues": 0.5659
+    },
+    {
+      "rangeLabel": "0.1-0.2",
+      "binLabel": "0.1-0.2",
+      "sessions": 691,
+      "conversions": 4,
+      "conversionRate": 0.0058,
+      "pct": 0.0566,
+      "avgPageValues": 0.0
+    }
+  ],
+  "exitRateBins": [
+    {
+      "rangeLabel": "=0",
+      "binLabel": "=0",
+      "sessions": 76,
+      "conversions": 34,
+      "conversionRate": 0.4474,
+      "pct": 0.0062,
+      "avgPageValues": 31.2816
+    },
+    {
+      "rangeLabel": "0-0.02",
+      "binLabel": "0-0.02",
+      "sessions": 4766,
+      "conversions": 1167,
+      "conversionRate": 0.2449,
+      "pct": 0.3905,
+      "avgPageValues": 10.3998
+    },
+    {
+      "rangeLabel": "0.02-0.05",
+      "binLabel": "0.02-0.05",
+      "sessions": 4669,
+      "conversions": 627,
+      "conversionRate": 0.1343,
+      "pct": 0.3825,
+      "avgPageValues": 4.062
+    },
+    {
+      "rangeLabel": "0.05-0.1",
+      "binLabel": "0.05-0.1",
+      "sessions": 1707,
+      "conversions": 74,
+      "conversionRate": 0.0434,
+      "pct": 0.1399,
+      "avgPageValues": 0.9997
+    },
+    {
+      "rangeLabel": "0.1-0.2",
+      "binLabel": "0.1-0.2",
+      "sessions": 987,
+      "conversions": 6,
+      "conversionRate": 0.0061,
+      "pct": 0.0809,
+      "avgPageValues": 0.0
+    }
+  ],
+  "region": [
+    {
+      "region": 1,
+      "sessions": 4714,
+      "conversions": 771,
+      "conversionRate": 0.1636,
+      "pct": 0.3862,
+      "avgPageDepth": 37.115,
+      "avgDuration": 1412.5393,
+      "avgPageValues": 5.9848
+    },
+    {
+      "region": 3,
+      "sessions": 2379,
+      "conversions": 349,
+      "conversionRate": 0.1467,
+      "pct": 0.1949,
+      "avgPageDepth": 35.3863,
+      "avgDuration": 1319.8175,
+      "avgPageValues": 5.3982
+    },
+    {
+      "region": 4,
+      "sessions": 1171,
+      "conversions": 175,
+      "conversionRate": 0.1494,
+      "pct": 0.0959,
+      "avgPageDepth": 33.3228,
+      "avgDuration": 1244.5511,
+      "avgPageValues": 5.8584
+    },
+    {
+      "region": 2,
+      "sessions": 1128,
+      "conversions": 188,
+      "conversionRate": 0.1667,
+      "pct": 0.0924,
+      "avgPageDepth": 33.5044,
+      "avgDuration": 1314.5866,
+      "avgPageValues": 5.9485
+    },
+    {
+      "region": 6,
+      "sessions": 801,
+      "conversions": 112,
+      "conversionRate": 0.1398,
+      "pct": 0.0656,
+      "avgPageDepth": 30.5481,
+      "avgDuration": 1139.3978,
+      "avgPageValues": 4.8276
+    },
+    {
+      "region": 7,
+      "sessions": 758,
+      "conversions": 119,
+      "conversionRate": 0.157,
+      "pct": 0.0621,
+      "avgPageDepth": 34.3918,
+      "avgDuration": 1252.7575,
+      "avgPageValues": 6.2844
+    },
+    {
+      "region": 9,
+      "sessions": 505,
+      "conversions": 86,
+      "conversionRate": 0.1703,
+      "pct": 0.0414,
+      "avgPageDepth": 32.0059,
+      "avgDuration": 1227.794,
+      "avgPageValues": 9.0489
+    },
+    {
+      "region": 8,
+      "sessions": 431,
+      "conversions": 56,
+      "conversionRate": 0.1299,
+      "pct": 0.0353,
+      "avgPageDepth": 29.8608,
+      "avgDuration": 1226.6749,
+      "avgPageValues": 4.2876
+    },
+    {
+      "region": 5,
+      "sessions": 318,
+      "conversions": 52,
+      "conversionRate": 0.1635,
+      "pct": 0.0261,
+      "avgPageDepth": 32.5252,
+      "avgDuration": 1267.2919,
+      "avgPageValues": 9.2508
+    }
+  ],
+  "weekend": [
+    {
+      "weekend": 0,
+      "weekendLabel": "工作日",
+      "sessions": 9346,
+      "conversions": 1409,
+      "conversionRate": 0.1508,
+      "pct": 0.7658,
+      "avgPageDepth": 34.4927,
+      "avgDuration": 1315.1336,
+      "avgPageValues": 5.8381,
+      "avgBounceRate": 0.0212,
+      "avgExitRate": 0.0428
+    },
+    {
+      "weekend": 1,
+      "weekendLabel": "周末",
+      "sessions": 2859,
+      "conversions": 499,
+      "conversionRate": 0.1745,
+      "pct": 0.2342,
+      "avgPageDepth": 36.2025,
+      "avgDuration": 1350.6542,
+      "avgPageValues": 6.3138,
+      "avgBounceRate": 0.0175,
+      "avgExitRate": 0.037
+    }
+  ],
+  "weekendInsight": {
+    "conversionGapPct": 2.37,
+    "depthGap": 1.7098,
+    "durationGap": 35.5206
+  },
+  "pageValuesBins": [
+    {
+      "binLabel": "=0",
+      "sessions": 9475,
+      "conversions": 370,
+      "conversionRate": 0.0391,
+      "pct": 0.7763,
+      "avgPageValues": 0.0
+    },
+    {
+      "binLabel": "0-10",
+      "sessions": 928,
+      "conversions": 356,
+      "conversionRate": 0.3836,
+      "pct": 0.076,
+      "avgPageValues": 5.0404
+    },
+    {
+      "binLabel": "10-30",
+      "sessions": 983,
+      "conversions": 545,
+      "conversionRate": 0.5544,
+      "pct": 0.0805,
+      "avgPageValues": 18.1572
+    },
+    {
+      "binLabel": "30-60",
+      "sessions": 538,
+      "conversions": 410,
+      "conversionRate": 0.7621,
+      "pct": 0.0441,
+      "avgPageValues": 42.5556
+    },
+    {
+      "binLabel": "60-100",
+      "sessions": 199,
+      "conversions": 156,
+      "conversionRate": 0.7839,
+      "pct": 0.0163,
+      "avgPageValues": 74.4125
+    },
+    {
+      "binLabel": "100+",
+      "sessions": 82,
+      "conversions": 71,
+      "conversionRate": 0.8659,
+      "pct": 0.0067,
+      "avgPageValues": 151.0427
+    }
+  ],
+  "pageValuesMax": 361.7637,
+  "specialDay": [
+    {
+      "specialDay": 0.0,
+      "sessions": 10956,
+      "conversions": 1831,
+      "conversionRate": 0.1671,
+      "pct": 0.8977,
+      "avgPageValues": 6.3624,
+      "avgBounceRate": 0.0189
+    },
+    {
+      "specialDay": 0.2,
+      "sessions": 178,
+      "conversions": 14,
+      "conversionRate": 0.0787,
+      "pct": 0.0146,
+      "avgPageValues": 3.6905,
+      "avgBounceRate": 0.0305
+    },
+    {
+      "specialDay": 0.4,
+      "sessions": 243,
+      "conversions": 13,
+      "conversionRate": 0.0535,
+      "pct": 0.0199,
+      "avgPageValues": 2.2773,
+      "avgBounceRate": 0.0361
+    },
+    {
+      "specialDay": 0.6,
+      "sessions": 350,
+      "conversions": 29,
+      "conversionRate": 0.0829,
+      "pct": 0.0287,
+      "avgPageValues": 2.862,
+      "avgBounceRate": 0.0361
+    },
+    {
+      "specialDay": 0.8,
+      "sessions": 324,
+      "conversions": 11,
+      "conversionRate": 0.034,
+      "pct": 0.0265,
+      "avgPageValues": 1.2711,
+      "avgBounceRate": 0.0343
+    },
+    {
+      "specialDay": 1.0,
+      "sessions": 154,
+      "conversions": 10,
+      "conversionRate": 0.0649,
+      "pct": 0.0126,
+      "avgPageValues": 1.8425,
+      "avgBounceRate": 0.0266
+    }
+  ],
+  "specialDayCompare": {
+    "normalSessions": 10956,
+    "normalConversionRate": 0.1671,
+    "specialSessions": 1249,
+    "specialConversionRate": 0.0616,
+    "nearZeroSessions": 421,
+    "nearZeroConversionRate": 0.0641,
+    "nearOnesSessions": 478,
+    "nearOnesConversionRate": 0.0439
+  },
+  "os": [
+    {
+      "osCode": 2,
+      "osName": "OS-2",
+      "sessions": 6541,
+      "conversions": 1155,
+      "conversionRate": 0.1766,
+      "pct": 0.5359
+    },
+    {
+      "osCode": 1,
+      "osName": "OS-1",
+      "sessions": 2549,
+      "conversions": 379,
+      "conversionRate": 0.1487,
+      "pct": 0.2088
+    },
+    {
+      "osCode": 3,
+      "osName": "OS-3",
+      "sessions": 2530,
+      "conversions": 268,
+      "conversionRate": 0.1059,
+      "pct": 0.2073
+    },
+    {
+      "osCode": 4,
+      "osName": "OS-4",
+      "sessions": 478,
+      "conversions": 85,
+      "conversionRate": 0.1778,
+      "pct": 0.0392
+    },
+    {
+      "osCode": 8,
+      "osName": "OS-8",
+      "sessions": 75,
+      "conversions": 17,
+      "conversionRate": 0.2267,
+      "pct": 0.0061
+    },
+    {
+      "osCode": 6,
+      "osName": "OS-6",
+      "sessions": 19,
+      "conversions": 2,
+      "conversionRate": 0.1053,
+      "pct": 0.0016
+    },
+    {
+      "osCode": 7,
+      "osName": "OS-7",
+      "sessions": 7,
+      "conversions": 1,
+      "conversionRate": 0.1429,
+      "pct": 0.0006
+    },
+    {
+      "osCode": 5,
+      "osName": "OS-5",
+      "sessions": 6,
+      "conversions": 1,
+      "conversionRate": 0.1667,
+      "pct": 0.0005
+    }
+  ],
+  "browser": [
+    {
+      "browser": 2,
+      "browserName": "Browser-2",
+      "sessions": 7883,
+      "conversions": 1223,
+      "conversionRate": 0.1551,
+      "pct": 0.6459
+    },
+    {
+      "browser": 1,
+      "browserName": "Browser-1",
+      "sessions": 2427,
+      "conversions": 365,
+      "conversionRate": 0.1504,
+      "pct": 0.1989
+    },
+    {
+      "browser": 4,
+      "browserName": "Browser-4",
+      "sessions": 731,
+      "conversions": 130,
+      "conversionRate": 0.1778,
+      "pct": 0.0599
+    },
+    {
+      "browser": 5,
+      "browserName": "Browser-5",
+      "sessions": 465,
+      "conversions": 86,
+      "conversionRate": 0.1849,
+      "pct": 0.0381
+    },
+    {
+      "browser": 6,
+      "browserName": "Browser-6",
+      "sessions": 174,
+      "conversions": 20,
+      "conversionRate": 0.1149,
+      "pct": 0.0143
+    },
+    {
+      "browser": 10,
+      "browserName": "Browser-10",
+      "sessions": 163,
+      "conversions": 32,
+      "conversionRate": 0.1963,
+      "pct": 0.0134
+    },
+    {
+      "browser": 8,
+      "browserName": "Browser-8",
+      "sessions": 135,
+      "conversions": 21,
+      "conversionRate": 0.1556,
+      "pct": 0.0111
+    },
+    {
+      "browser": 3,
+      "browserName": "Browser-3",
+      "sessions": 105,
+      "conversions": 5,
+      "conversionRate": 0.0476,
+      "pct": 0.0086
+    },
+    {
+      "browser": 13,
+      "browserName": "Browser-13",
+      "sessions": 56,
+      "conversions": 16,
+      "conversionRate": 0.2857,
+      "pct": 0.0046
+    },
+    {
+      "browser": 7,
+      "browserName": "Browser-7",
+      "sessions": 49,
+      "conversions": 6,
+      "conversionRate": 0.1224,
+      "pct": 0.004
+    },
+    {
+      "browser": 12,
+      "browserName": "Browser-12",
+      "sessions": 10,
+      "conversions": 3,
+      "conversionRate": 0.3,
+      "pct": 0.0008
+    },
+    {
+      "browser": 11,
+      "browserName": "Browser-11",
+      "sessions": 6,
+      "conversions": 1,
+      "conversionRate": 0.1667,
+      "pct": 0.0005
+    },
+    {
+      "browser": 9,
+      "browserName": "Browser-9",
+      "sessions": 1,
+      "conversions": 0,
+      "conversionRate": 0.0,
+      "pct": 0.0001
+    }
+  ],
+  "osTop3Pct": 0.952,
+  "browserTop3Pct": 0.9047,
+  "visitorTypeWeekend": [
+    {
+      "visitorType": "Returning_Visitor",
+      "weekend": 0,
+      "weekendLabel": "工作日",
+      "sessions": 8058,
+      "conversions": 1077,
+      "conversionRate": 0.1337
+    },
+    {
+      "visitorType": "Returning_Visitor",
+      "weekend": 1,
+      "weekendLabel": "周末",
+      "sessions": 2373,
+      "conversions": 393,
+      "conversionRate": 0.1656
+    },
+    {
+      "visitorType": "New_Visitor",
+      "weekend": 0,
+      "weekendLabel": "工作日",
+      "sessions": 1214,
+      "conversions": 317,
+      "conversionRate": 0.2611
+    },
+    {
+      "visitorType": "New_Visitor",
+      "weekend": 1,
+      "weekendLabel": "周末",
+      "sessions": 479,
+      "conversions": 105,
+      "conversionRate": 0.2192
+    },
+    {
+      "visitorType": "Other",
+      "weekend": 0,
+      "weekendLabel": "工作日",
+      "sessions": 74,
+      "conversions": 15,
+      "conversionRate": 0.2027
+    },
+    {
+      "visitorType": "Other",
+      "weekend": 1,
+      "weekendLabel": "周末",
+      "sessions": 7,
+      "conversions": 1,
+      "conversionRate": 0.1429
+    }
+  ],
+  "correlationWithRevenue": [
+    {
+      "feature": "PageValues",
+      "featureCn": "页面价值分",
+      "corr": 0.4919
+    },
+    {
+      "feature": "page_depth",
+      "featureCn": "页面访问深度",
+      "corr": 0.1615
+    },
+    {
+      "feature": "ProductRelated",
+      "featureCn": "商品类页面访问数",
+      "corr": 0.156
+    },
+    {
+      "feature": "total_duration",
+      "featureCn": "总停留时长",
+      "corr": 0.1537
+    },
+    {
+      "feature": "Administrative",
+      "featureCn": "管理类页面访问数",
+      "corr": 0.1363
+    },
+    {
+      "feature": "Informational",
+      "featureCn": "信息类页面访问数",
+      "corr": 0.0936
+    },
+    {
+      "feature": "weekend_i",
+      "featureCn": "是否周末",
+      "corr": 0.0277
+    },
+    {
+      "feature": "SpecialDay",
+      "featureCn": "特殊日期接近度",
+      "corr": -0.0836
+    },
+    {
+      "feature": "BounceRates",
+      "featureCn": "跳出率",
+      "corr": -0.1451
+    },
+    {
+      "feature": "ExitRates",
+      "featureCn": "退出率",
+      "corr": -0.2043
+    }
+  ],
+  "model": {
+    "featureCount": 28,
+    "numericFeatureCount": 15,
+    "dummyFeatureCount": 13,
+    "trainRows": 9764,
+    "testRows": 2441,
+    "trainPositive": 1526,
+    "testPositive": 382,
+    "bestModel": "RandomForest",
+    "metrics": [
+      {
+        "modelName": "LogisticRegression",
+        "accuracy": 0.8894,
+        "auc": 0.9021,
+        "precision": 0.7718,
+        "recall": 0.4162,
+        "f1": 0.5408
+      },
+      {
+        "modelName": "RandomForest",
+        "accuracy": 0.907,
+        "auc": 0.9293,
+        "precision": 0.7663,
+        "recall": 0.5838,
+        "f1": 0.6627
+      }
+    ],
+    "confusion": [
+      {
+        "modelName": "LogisticRegression",
+        "tp": 159,
+        "fp": 47,
+        "tn": 2012,
+        "fn": 223
+      },
+      {
+        "modelName": "RandomForest",
+        "tp": 223,
+        "fp": 68,
+        "tn": 1991,
+        "fn": 159
+      }
+    ],
+    "featureImportance": [
+      {
+        "featureKey": "PageValues",
+        "featureCn": "页面价值分",
+        "importance": 0.358825,
+        "rankNo": 1
+      },
+      {
+        "featureKey": "ProductRelated_Duration",
+        "featureCn": "商品类停留时长",
+        "importance": 0.089679,
+        "rankNo": 2
+      },
+      {
+        "featureKey": "ExitRates",
+        "featureCn": "退出率",
+        "importance": 0.087277,
+        "rankNo": 3
+      },
+      {
+        "featureKey": "ProductRelated",
+        "featureCn": "商品类页面访问数",
+        "importance": 0.071581,
+        "rankNo": 4
+      },
+      {
+        "featureKey": "Month",
+        "featureCn": "访问月份",
+        "importance": 0.059579,
+        "rankNo": 5
+      },
+      {
+        "featureKey": "Administrative_Duration",
+        "featureCn": "管理类停留时长",
+        "importance": 0.056759,
+        "rankNo": 6
+      },
+      {
+        "featureKey": "BounceRates",
+        "featureCn": "跳出率",
+        "importance": 0.05649,
+        "rankNo": 7
+      },
+      {
+        "featureKey": "Administrative",
+        "featureCn": "管理类页面访问数",
+        "importance": 0.043631,
+        "rankNo": 8
+      },
+      {
+        "featureKey": "TrafficType",
+        "featureCn": "流量类型编码",
+        "importance": 0.031944,
+        "rankNo": 9
+      },
+      {
+        "featureKey": "Region",
+        "featureCn": "区域编码",
+        "importance": 0.031088,
+        "rankNo": 10
+      },
+      {
+        "featureKey": "Informational_Duration",
+        "featureCn": "信息类停留时长",
+        "importance": 0.026818,
+        "rankNo": 11
+      },
+      {
+        "featureKey": "Browser",
+        "featureCn": "浏览器编码",
+        "importance": 0.019919,
+        "rankNo": 12
+      }
+    ],
+    "featureImportanceAll": [
+      {
+        "featureKey": "PageValues",
+        "featureCn": "页面价值分",
+        "importance": 0.358825,
+        "rankNo": 1
+      },
+      {
+        "featureKey": "ProductRelated_Duration",
+        "featureCn": "商品类停留时长",
+        "importance": 0.089679,
+        "rankNo": 2
+      },
+      {
+        "featureKey": "ExitRates",
+        "featureCn": "退出率",
+        "importance": 0.087277,
+        "rankNo": 3
+      },
+      {
+        "featureKey": "ProductRelated",
+        "featureCn": "商品类页面访问数",
+        "importance": 0.071581,
+        "rankNo": 4
+      },
+      {
+        "featureKey": "Month",
+        "featureCn": "访问月份",
+        "importance": 0.059579,
+        "rankNo": 5
+      },
+      {
+        "featureKey": "Administrative_Duration",
+        "featureCn": "管理类停留时长",
+        "importance": 0.056759,
+        "rankNo": 6
+      },
+      {
+        "featureKey": "BounceRates",
+        "featureCn": "跳出率",
+        "importance": 0.05649,
+        "rankNo": 7
+      },
+      {
+        "featureKey": "Administrative",
+        "featureCn": "管理类页面访问数",
+        "importance": 0.043631,
+        "rankNo": 8
+      },
+      {
+        "featureKey": "TrafficType",
+        "featureCn": "流量类型编码",
+        "importance": 0.031944,
+        "rankNo": 9
+      },
+      {
+        "featureKey": "Region",
+        "featureCn": "区域编码",
+        "importance": 0.031088,
+        "rankNo": 10
+      },
+      {
+        "featureKey": "Informational_Duration",
+        "featureCn": "信息类停留时长",
+        "importance": 0.026818,
+        "rankNo": 11
+      },
+      {
+        "featureKey": "Browser",
+        "featureCn": "浏览器编码",
+        "importance": 0.019919,
+        "rankNo": 12
+      },
+      {
+        "featureKey": "OperatingSystems",
+        "featureCn": "操作系统编码",
+        "importance": 0.01797,
+        "rankNo": 13
+      },
+      {
+        "featureKey": "Informational",
+        "featureCn": "信息类页面访问数",
+        "importance": 0.017648,
+        "rankNo": 14
+      },
+      {
+        "featureKey": "VisitorType",
+        "featureCn": "访客类型",
+        "importance": 0.015568,
+        "rankNo": 15
+      },
+      {
+        "featureKey": "weekend_i",
+        "featureCn": "是否周末",
+        "importance": 0.011467,
+        "rankNo": 16
+      },
+      {
+        "featureKey": "SpecialDay",
+        "featureCn": "特殊日期接近度",
+        "importance": 0.003758,
+        "rankNo": 17
+      }
+    ],
+    "lrCoefficientsTop12": [
+      {
+        "feature": "PageValues",
+        "coef": 1.5308
+      },
+      {
+        "feature": "ExitRates",
+        "coef": -0.7992
+      },
+      {
+        "feature": "Month_Nov",
+        "coef": 0.319
+      },
+      {
+        "feature": "Month_Feb",
+        "coef": -0.1653
+      },
+      {
+        "feature": "Month_May",
+        "coef": -0.1432
+      },
+      {
+        "feature": "ProductRelated_Duration",
+        "coef": 0.1416
+      },
+      {
+        "feature": "Month_Dec",
+        "coef": -0.1414
+      },
+      {
+        "feature": "Month_Mar",
+        "coef": -0.1081
+      },
+      {
+        "feature": "BounceRates",
+        "coef": -0.0959
+      },
+      {
+        "feature": "Month_Oct",
+        "coef": 0.0661
+      },
+      {
+        "feature": "Administrative_Duration",
+        "coef": -0.0646
+      },
+      {
+        "feature": "OperatingSystems",
+        "coef": -0.0613
+      }
+    ]
+  },
+  "insights": {
+    "kpi": [
+      "清洗后有效会话 12205 条，成交 1908 条，整体转化率 15.63%。",
+      "平均页面深度 34.89 页，平均停留 1323.45 秒；跳出率 2.04%，退出率 4.15%。",
+      "新访客占比 13.87%，回访客占比 85.46%，其他访客占比 0.66%。",
+      "PageValues=0 的会话占 77.63%，而全部成交中有 80.61% 来自 PageValues>0 的会话。"
+    ],
+    "structure": [
+      "访问高峰出现在 5月，会话 3329 条，占全年 27.28%；数据集中无 Jan、Apr 记录，趋势图已按 1-12 月补 0。",
+      "转化率最高的月份为 11月（25.49%），最低为 2月（1.66%）。",
+      "会话量最大的流量类型为 TrafficType 2（3911 条，转化率 21.66%）；样本量≥100 的渠道中转化效率最高的是 TrafficType 8（27.70%）。",
+      "页面深度 60+ 的深度会话转化率 26.03%，远高于整体水平，深度浏览与成交高度正相关。"
+    ],
+    "leakage": [
+      "PageValues 100+ 分组会话 82 条，转化率 86.59%；PageValues=0 分组转化率仅 3.91%，页面价值分是最强的成交前兆指标。",
+      "周末会话 2859 条转化率 17.45%，工作日 9346 条转化率 15.08%，相差 2.37 个百分点。",
+      "特殊日期接近度=0 的普通日会话转化率 16.71%，远离节假日（0.2-0.4）时转化率 6.41%。",
+      "操作系统 Top3 编码合计占 95.20%，浏览器 Top3 编码合计占 90.47%，终端分布高度集中。"
+    ],
+    "model": [
+      "逻辑回归 AUC 0.9021、F1 0.5408；随机森林 AUC 0.9293、F1 0.6627。",
+      "以 AUC 为准则，RandomForest 表现更优，写入 dws_model_result 时标记 is_best=1。",
+      "随机森林最重要的前三个特征为 页面价值分(0.3588)、商品类停留时长(0.0897)、退出率(0.0873)。",
+      "由于 PageValues 与 ExitRates 本身由站内行为统计而来，模型指标偏高属于业务可解释的“行为强相关”现象，解释时应强调其预警价值而非因果。"
+    ]
+  }
+}
