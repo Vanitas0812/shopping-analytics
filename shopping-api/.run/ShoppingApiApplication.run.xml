@@ -1,0 +1,11 @@
+﻿<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="ShoppingApiApplication" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
+    <module name="shopping-api" />
+    <option name="SPRING_BOOT_MAIN_CLASS" value="com.datavis.shopping.ShoppingApiApplication" />
+    <option name="ALTERNATIVE_JRE_PATH" />
+    <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
