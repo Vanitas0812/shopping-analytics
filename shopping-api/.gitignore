@@ -1,0 +1,6 @@
+﻿target/
+out/
+.idea/workspace.xml
+.idea/httpRequests/
+*.iml
+*.log
