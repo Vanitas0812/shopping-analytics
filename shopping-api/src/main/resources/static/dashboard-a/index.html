@@ -1,0 +1,2004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>电商用户购买意向分析与转化预测可视化平台 | 用户行为与流量运营大屏</title>
+
+<!-- ============ ECharts：本地优先 + CDN 兜底（答辩断网可用） ============ -->
+<script src="../vendor/echarts.min.js"></script>
+<script>
+  if (typeof window.echarts === 'undefined') {
+    document.write('<script src="https://cdn.bootcdn.net/ajax/libs/echarts/5.5.0/echarts.min.js"><\/script>');
+  }
+</script>
+<!-- ============ axios：本地优先 + CDN 兜底 ============ -->
+<script src="../vendor/axios.min.js"></script>
+<script>
+  if (typeof window.axios === 'undefined') {
+    document.write('<script src="https://cdn.bootcdn.net/ajax/libs/axios/1.6.8/axios.min.js"><\/script>');
+  }
+</script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root{
+    --bg-0:#040a18;
+    --bg-1:#071026;
+    --panel: rgba(12, 26, 52, .74);
+    --panel-2: rgba(8, 20, 42, .86);
+    --line: rgba(64, 158, 255, .24);
+    --line-2: rgba(34, 211, 238, .45);
+    --cyan:#22d3ee;
+    --blue:#3b82f6;
+    --purple:#a855f7;
+    --green:#10b981;
+    --amber:#f59e0b;
+    --red:#f43f5e;
+    --txt:#e7f1ff;
+    --txt-2:#8fa9c9;
+    --txt-3:#5f7c9e;
+  }
+
+  html, body{
+    width:100%; height:100%;
+    background: radial-gradient(1200px 700px at 20% -10%, #0b2447 0%, transparent 60%),
+                radial-gradient(900px 600px at 90% 0%, #122a53 0%, transparent 55%),
+                linear-gradient(180deg, #040a18 0%, #06142b 45%, #040a18 100%);
+    color: var(--txt);
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  /* 1920x1080 设计基准，JS 计算 transform: scale 自适应 */
+  #screen{
+    position: absolute; top:0; left:0;
+    width:1920px; height:1080px;
+    transform-origin: top left;
+    padding: 14px 18px 16px;
+    display:flex; flex-direction:column; gap:12px;
+  }
+
+  /* 背景网格 */
+  #screen::before{
+    content:""; position:absolute; inset:0; pointer-events:none; z-index:0;
+    background-image:
+      linear-gradient(rgba(64,158,255,.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(64,158,255,.055) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at 50% 40%, #000 55%, transparent 92%);
+    -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 55%, transparent 92%);
+  }
+  #screen > * { position: relative; z-index: 1; }
+  /* 弹窗遮罩必须盖在所有内容之上，不受上面那条规则影响 */
+  #screen > .overlay { position: absolute; z-index: 200; }
+
+  /* ================= 顶部标题栏 ================= */
+  header.topbar{
+    height: 58px; flex: 0 0 58px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 18px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, rgba(10,26,54,.92) 0%, rgba(14,36,74,.78) 50%, rgba(10,26,54,.92) 100%);
+    border: 1px solid var(--line);
+    box-shadow: inset 0 1px 0 rgba(120,190,255,.14), 0 8px 26px rgba(0,0,0,.36);
+  }
+  .topbar .left{ display:flex; align-items:center; gap:14px; }
+  .logo-mark{
+    width: 34px; height: 34px; border-radius: 9px;
+    background: conic-gradient(from 210deg, #22d3ee, #3b82f6, #a855f7, #22d3ee);
+    box-shadow: 0 0 18px rgba(34,211,238,.55);
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700; font-size: 15px; color:#04101f; letter-spacing: .5px;
+  }
+  .title-main{ font-size: 24px; font-weight: 700; letter-spacing: 2px; }
+  .title-main .accent{ color: var(--cyan); }
+  .title-sub{ font-size: 12.5px; color: var(--txt-2); margin-top: 2px; letter-spacing: .6px; }
+
+  .topbar .right{ display:flex; align-items:center; gap: 12px; }
+
+  .status-chip{
+    display:flex; align-items:center; gap:8px;
+    height: 30px; padding: 0 12px; border-radius: 999px;
+    background: rgba(8,22,45,.9); border: 1px solid rgba(64,158,255,.3);
+    font-size: 12.5px; color: var(--txt-2); white-space: nowrap;
+  }
+  .dot{ width:8px; height:8px; border-radius:50%; background: var(--amber); box-shadow: 0 0 10px currentColor; }
+  .dot.ok{ background: var(--green); box-shadow: 0 0 10px var(--green); }
+  .dot.bad{ background: var(--red); box-shadow:0 0 10px var(--red); }
+  .dot.wait{ background: var(--amber); box-shadow:0 0 10px var(--amber); animation: pulse 1.2s ease-in-out infinite; }
+  @keyframes pulse{ 0%,100%{opacity:.35} 50%{opacity:1} }
+
+  .clock{ text-align:right; line-height:1.15; }
+  .clock .t{ font-size: 20px; font-weight:700; letter-spacing:1.6px; color:#dff0ff; font-variant-numeric: tabular-nums; }
+  .clock .d{ font-size: 11.5px; color: var(--txt-3); letter-spacing:.4px; }
+
+  /* ================= KPI 卡 ================= */
+  .kpi-row{ flex: 0 0 96px; display:grid; grid-template-columns: repeat(7, 1fr); gap:12px; }
+
+  .kpi{
+    position: relative; overflow: hidden;
+    border-radius: 10px; padding: 11px 14px 9px;
+    background: linear-gradient(160deg, rgba(16,40,78,.92) 0%, rgba(8,20,42,.92) 100%);
+    border: 1px solid var(--line);
+    box-shadow: inset 0 1px 0 rgba(120,190,255,.12), 0 6px 20px rgba(0,0,0,.3);
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .kpi::after{
+    content:""; position:absolute; left:0; top:0; width:3px; height:100%;
+    background: linear-gradient(180deg, var(--cyan), transparent);
+  }
+  .kpi .k-label{ font-size: 12.5px; color: var(--txt-2); letter-spacing:.8px; display:flex; align-items:center; gap:6px; }
+  .kpi .k-label i{ width:5px; height:5px; border-radius:50%; background: currentColor; display:inline-block; }
+  .kpi .k-value{
+    font-size: 27px; font-weight: 700; letter-spacing:.6px; line-height: 1.1;
+    font-variant-numeric: tabular-nums;
+    color: #eaf6ff; text-shadow: 0 0 16px rgba(34,211,238,.28);
+  }
+  .kpi .k-value .unit{ font-size: 13px; font-weight:400; color: var(--txt-2); margin-left: 3px; }
+  .kpi .k-foot{ font-size: 11px; color: var(--txt-3); letter-spacing:.2px; }
+  .kpi.c1::after{ background: linear-gradient(180deg, var(--cyan), transparent); }
+  .kpi.c2::after{ background: linear-gradient(180deg, var(--green), transparent); }
+  .kpi.c3::after{ background: linear-gradient(180deg, var(--amber), transparent); }
+  .kpi.c4::after{ background: linear-gradient(180deg, var(--blue), transparent); }
+  .kpi.c5::after{ background: linear-gradient(180deg, var(--purple), transparent); }
+  .kpi.c6::after{ background: linear-gradient(180deg, #fb7185, transparent); }
+  .kpi.c7::after{ background: linear-gradient(180deg, #38bdf8, transparent); }
+
+  /* ================= 面板 ================= */
+  .panel{
+    position: relative;
+    border-radius: 10px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    box-shadow: inset 0 1px 0 rgba(120,190,255,.1), 0 8px 24px rgba(0,0,0,.28);
+    display:flex; flex-direction:column;
+    min-height: 0; min-width: 0;
+    backdrop-filter: blur(2px);
+  }
+  .panel::before, .panel::after{
+    content:""; position:absolute; width:12px; height:12px; pointer-events:none;
+    border-color: var(--line-2); border-style: solid;
+  }
+  .panel::before{ left:-1px; top:-1px; border-width: 2px 0 0 2px; border-top-left-radius: 10px; }
+  .panel::after{ right:-1px; bottom:-1px; border-width: 0 2px 2px 0; border-bottom-right-radius: 10px; }
+
+  .panel-head{
+    flex: 0 0 32px; height:32px;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 0 12px;
+    border-bottom: 1px solid rgba(64,158,255,.16);
+  }
+  .panel-title{
+    font-size: 13.5px; font-weight: 700; letter-spacing: 1px; color:#dcf0ff;
+    display:flex; align-items:center; gap:8px;
+  }
+  .panel-title::before{
+    content:""; width: 3px; height: 13px; border-radius:2px;
+    background: linear-gradient(180deg, var(--cyan), var(--blue));
+    box-shadow: 0 0 8px rgba(34,211,238,.7);
+  }
+  .panel-title .tag{
+    font-size: 10.5px; font-weight:400; color: var(--txt-3); letter-spacing:.3px;
+    border:1px solid rgba(64,158,255,.22); border-radius: 4px; padding: 0 5px; line-height:15px;
+  }
+  .panel-body{ flex: 1 1 auto; min-height: 0; position: relative; }
+  .chart{ position:absolute; inset: 0; }
+
+  /* 图表类型切换按钮组 */
+  .chart-switch{ display:flex; gap:2px; align-items:center; }
+  .chart-switch .sw-btn{
+    font-family: inherit; cursor: pointer;
+    font-size: 10.5px; line-height: 18px; padding: 0 8px;
+    color: var(--txt-3); background: transparent;
+    border: 1px solid rgba(64,158,255,.26); border-radius: 4px;
+    transition: all .16s ease; white-space: nowrap;
+  }
+  .chart-switch .sw-btn:hover{
+    color: #cfe6ff; border-color: rgba(64,158,255,.55);
+    background: rgba(64,158,255,.10);
+  }
+  .chart-switch .sw-btn.active{
+    color: #04182f; font-weight: 700;
+    background: linear-gradient(180deg, #22d3ee, #3b82f6);
+    border-color: #22d3ee;
+    box-shadow: 0 0 10px rgba(34,211,238,.45);
+  }
+
+  /* 图表加载/错误遮罩 */
+  .mask{
+    position:absolute; inset:0; display:none; align-items:center; justify-content:center;
+    flex-direction: column; gap:8px;
+    font-size: 12.5px; color: var(--txt-2); z-index: 5;
+    background: rgba(6,16,34,.66);
+  }
+  .mask.show{ display:flex; }
+  .mask .spin{
+    width: 22px; height: 22px; border-radius: 50%;
+    border: 2px solid rgba(34,211,238,.22); border-top-color: var(--cyan);
+    animation: rot .8s linear infinite;
+  }
+  .mask.err{ color: #fda4af; }
+  .mask.err .spin{ display:none; }
+  @keyframes rot{ to { transform: rotate(360deg); } }
+
+  /* ================= 行布局 ================= */
+  .row-2{ flex: 1 1 auto; display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; min-height:0; }
+  .row-2 .span-6{ grid-column: span 6; }
+  .row-2 .span-3{ grid-column: span 3; }
+
+  .row-3{ flex: 0 0 232px; display:grid; grid-template-columns: repeat(12, 1fr); gap:12px; min-height:0; }
+  .row-3 .span-3{ grid-column: span 3; }
+
+  /* ================= 会话明细表 ================= */
+  .row-4{ flex: 0 0 292px; display:flex; min-height:0; }
+
+  .table-wrap{ flex:1 1 auto; min-height:0; display:flex; flex-direction:column; padding: 8px 12px 10px; gap:8px; }
+
+  .toolbar{ display:flex; align-items:center; gap:8px; flex-wrap: nowrap; }
+  .toolbar .spacer{ flex:1 1 auto; }
+
+  select, input[type="text"], input[type="number"]{
+    height: 27px; padding: 0 8px; border-radius: 6px;
+    background: rgba(6,18,38,.94); color: var(--txt);
+    border: 1px solid rgba(64,158,255,.28);
+    font-size: 12px; outline: none;
+    font-family: inherit;
+  }
+  select:focus, input:focus{ border-color: var(--cyan); box-shadow: 0 0 0 2px rgba(34,211,238,.14); }
+  select option{ background:#07142b; color:#e7f1ff; }
+  input[type="number"]{ width: 96px; }
+
+  .btn{
+    height: 27px; padding: 0 12px; border-radius: 6px; cursor: pointer;
+    font-size: 12px; letter-spacing:.5px; font-family: inherit;
+    color: #d8ecff;
+    background: linear-gradient(180deg, rgba(30,64,120,.9), rgba(16,38,74,.9));
+    border: 1px solid rgba(64,158,255,.34);
+    transition: all .16s ease;
+    white-space: nowrap;
+  }
+  .btn:hover{ border-color: var(--cyan); color:#fff; box-shadow: 0 0 12px rgba(34,211,238,.3); }
+  .btn:active{ transform: translateY(1px); }
+  .btn.primary{ background: linear-gradient(180deg, #1d6fd6, #164f9e); border-color:#3f9eff; color:#fff; }
+  .btn.danger{ background: linear-gradient(180deg, rgba(120,26,48,.95), rgba(72,14,30,.95)); border-color: rgba(244,63,94,.5); }
+  .btn.danger:hover{ border-color: var(--red); box-shadow: 0 0 12px rgba(244,63,94,.35); }
+  .btn.tiny{ height: 22px; padding: 0 8px; font-size: 11.5px; border-radius: 5px; }
+  .btn:disabled{ opacity:.45; cursor: not-allowed; box-shadow:none; }
+
+  .table-scroll{ flex: 1 1 auto; overflow-y: auto; overflow-x: hidden; min-height:0; border-radius: 8px; border: 1px solid rgba(64,158,255,.14); }
+  /* 表格滚动条深色样式 */
+  .table-scroll::-webkit-scrollbar{ width: 8px; }
+  .table-scroll::-webkit-scrollbar-track{ background: rgba(8,21,44,.6); border-radius: 4px; }
+  .table-scroll::-webkit-scrollbar-thumb{ background: rgba(64,158,255,.45); border-radius: 4px; }
+  .table-scroll::-webkit-scrollbar-thumb:hover{ background: rgba(34,211,238,.7); }
+  table.grid{ width:100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+  table.grid thead th{
+    position: sticky; top:0; z-index: 2;
+    height: 30px; padding: 0 8px; text-align:left;
+    background: rgba(14,38,76,.98); color:#a9c8ea; font-weight:600; letter-spacing:.4px;
+    border-bottom: 1px solid rgba(64,158,255,.26);
+    white-space: nowrap;
+  }
+  table.grid tbody td{
+    height: 28px; padding: 0 8px; color:#cfe4fa;
+    border-bottom: 1px solid rgba(64,158,255,.08);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-variant-numeric: tabular-nums;
+  }
+  table.grid tbody tr{ transition: background .14s ease; }
+  table.grid tbody tr:nth-child(even){ background: rgba(16,38,76,.24); }
+  table.grid tbody tr:hover{ background: rgba(34,211,238,.18); }
+  table.grid tbody tr:hover td{
+    color: #e8f6ff;
+    border-bottom-color: rgba(34,211,238,.28);
+  }
+  /* 悬停时左侧亮条，强化行定位 */
+  table.grid tbody tr td:first-child{
+    box-shadow: inset 2px 0 0 transparent;
+    transition: box-shadow .14s ease;
+  }
+  table.grid tbody tr:hover td:first-child{
+    box-shadow: inset 2px 0 0 var(--cyan);
+  }
+  table.grid td.num, table.grid th.num{ text-align: right; }
+  table.grid td.act{ text-align:center; }
+  .pill{
+    display:inline-block; padding: 0 7px; height: 18px; line-height:18px; border-radius: 9px;
+    font-size: 11px; letter-spacing:.2px;
+  }
+  .pill.yes{ background: rgba(16,185,129,.16); color:#4ade80; border:1px solid rgba(16,185,129,.4); }
+  .pill.no{ background: rgba(148,163,184,.12); color:#94a3b8; border:1px solid rgba(148,163,184,.3); }
+
+  .pager{ display:flex; align-items:center; gap:8px; flex: 0 0 26px; font-size: 12px; color: var(--txt-2); }
+  .pager .info{ color: var(--txt-3); }
+  .pager .spacer{ flex:1 1 auto; }
+
+  /* ================= 弹窗 ================= */
+  .overlay{
+    position:absolute; inset:0; z-index: 200;
+    background: rgba(2,8,20,.75);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display:none; align-items:center; justify-content:center;
+  }
+  .overlay.show{ display:flex; }
+  .modal{
+    width: 760px; border-radius: 12px; overflow:hidden;
+    max-height: 86vh;                    /* 不超出屏幕 */
+    display:flex; flex-direction:column; /* 让 body 可滚动 */
+    background: linear-gradient(160deg, #0c1e3d 0%, #07142b 100%);
+    border: 1px solid rgba(64,158,255,.4);
+    box-shadow: 0 26px 60px rgba(0,0,0,.6), inset 0 1px 0 rgba(120,190,255,.16);
+  }
+  .modal-head{
+    height: 46px; flex:0 0 46px; display:flex; align-items:center; justify-content:space-between;
+    padding: 0 16px; border-bottom: 1px solid rgba(64,158,255,.22);
+    background: rgba(14,38,76,.6);
+  }
+  .modal-head .m-title{ font-size: 15px; font-weight:700; letter-spacing:1px; color:#dff0ff; }
+  .modal-head .close{ cursor:pointer; color: var(--txt-2); font-size: 20px; line-height:1; padding: 2px 6px; border-radius:6px; }
+  .modal-head .close:hover{ color:#fff; background: rgba(244,63,94,.2); }
+  .modal-body{ padding: 16px; display:grid; grid-template-columns: repeat(3, 1fr); gap: 12px 14px;
+    overflow-y: auto; flex: 1 1 auto; min-height: 0; }
+  .field{ display:flex; flex-direction:column; gap:5px; }
+  .field label{ font-size: 12px; color: var(--txt-2); letter-spacing:.4px; }
+  .field label .req{ color: var(--red); margin-left: 2px; }
+  .field input, .field select{ width: 100%; height: 30px; font-size: 12.5px; }
+  .modal-foot{
+    height: 56px; flex:0 0 56px; display:flex; align-items:center; justify-content:flex-end; gap:10px;
+    padding: 0 16px; border-top: 1px solid rgba(64,158,255,.18);
+    background: rgba(6,18,38,.5);
+  }
+  .modal-foot .hint{ margin-right:auto; font-size: 12px; color: var(--red); min-height: 16px; }
+
+  /* Toast */
+  #toast-host{ position:absolute; right: 24px; bottom: 26px; z-index: 50; display:flex; flex-direction:column; gap:8px; align-items:flex-end; }
+  .toast{
+    min-width: 200px; max-width: 460px; padding: 9px 14px; border-radius: 8px; font-size: 12.5px;
+    background: rgba(10,28,56,.96); border:1px solid rgba(64,158,255,.4); color:#dceeff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.5);
+    animation: toastIn .22s ease;
+  }
+  .toast.ok{ border-color: rgba(16,185,129,.6); color:#86efac; }
+  .toast.err{ border-color: rgba(244,63,94,.6); color:#fda4af; }
+  @keyframes toastIn{ from{ opacity:0; transform: translateY(8px);} to{ opacity:1; transform:none;} }
+
+  /* 全局错误条 */
+  #fatal{
+    position:absolute; left: 50%; top: 8px; transform: translateX(-50%);
+    z-index: 60; display:none; max-width: 1200px;
+    padding: 8px 16px; border-radius: 8px; font-size: 13px;
+    background: rgba(120,20,40,.95); border:1px solid rgba(244,63,94,.7); color:#ffe4e6;
+  }
+</style>
+</head>
+<body>
+
+<div id="screen">
+
+  <!-- ==================== 顶部标题 ==================== -->
+  <header class="topbar">
+    <div class="left">
+      <div class="logo-mark">M1</div>
+      <div>
+        <div class="title-main">电商用户购买意向分析与转化预测平台</div>
+        <div class="title-sub">用户行为与流量运营大屏　|　UCI Online Shoppers Purchasing Intention　|　12,330 行 × 18 列（去重后 12,205 行）</div>
+      </div>
+    </div>
+    <div class="right">
+      <div class="status-chip"><span class="dot wait" id="health-dot"></span><span id="health-text">正在连接后端服务…</span></div>
+      <div class="status-chip"><span class="dot" style="background:var(--cyan);box-shadow:0 0 10px var(--cyan)"></span><span id="refresh-text">自动刷新 60s</span></div>
+      <div class="clock">
+        <div class="t" id="clock-time">--:--:--</div>
+        <div class="d" id="clock-date">----/--/--</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== KPI 卡 ==================== -->
+  <section class="kpi-row">
+    <div class="kpi c1">
+      <div class="k-label"><i></i>总会话数</div>
+      <div class="k-value" id="kpi-sessions">--<span class="unit">次</span></div>
+      <div class="k-foot">清洗去重后有效会话</div>
+    </div>
+    <div class="kpi c2">
+      <div class="k-label"><i></i>成交会话数</div>
+      <div class="k-value" id="kpi-revenue">--<span class="unit">次</span></div>
+      <div class="k-foot">Revenue = TRUE</div>
+    </div>
+    <div class="kpi c3">
+      <div class="k-label"><i></i>整体转化率</div>
+      <div class="k-value" id="kpi-cvr">--<span class="unit">%</span></div>
+      <div class="k-foot">成交会话 / 总会话</div>
+    </div>
+    <div class="kpi c4">
+      <div class="k-label"><i></i>平均页面深度</div>
+      <div class="k-value" id="kpi-depth">--<span class="unit">页</span></div>
+      <div class="k-foot">管理+信息+商品页浏览量</div>
+    </div>
+    <div class="kpi c5">
+      <div class="k-label"><i></i>平均停留时长</div>
+      <div class="k-value" id="kpi-duration">--<span class="unit">秒</span></div>
+      <div class="k-foot">三类页面停留时长之和均值</div>
+    </div>
+    <div class="kpi c6">
+      <div class="k-label"><i></i>跳出率 / 退出率</div>
+      <div class="k-value" id="kpi-bounce">--<span class="unit">%</span></div>
+      <div class="k-foot" id="kpi-exit">退出率 --</div>
+    </div>
+    <div class="kpi c7">
+      <div class="k-label"><i></i>回访访客占比</div>
+      <div class="k-value" id="kpi-returning">--<span class="unit">%</span></div>
+      <div class="k-foot" id="kpi-new">新访客 --</div>
+    </div>
+  </section>
+
+  <!-- ==================== 第二行：月趋势 / 访客类型 / 区域 ==================== -->
+  <section class="row-2">
+    <div class="panel span-6">
+      <div class="panel-head">
+        <div class="panel-title">月度访问量与转化趋势</div>
+        <div class="chart-switch" id="switch-monthly">
+          <button class="sw-btn active" data-mode="bar"   title="柱+线：绝对值对比">柱状</button>
+          <button class="sw-btn"        data-mode="line"  title="双折线：看趋势走向">折线</button>
+          <button class="sw-btn"        data-mode="area"  title="堆叠面积：看累积占比">面积</button>
+        </div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-monthly"></div>
+        <div class="mask" id="mask-monthly"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="panel-head">
+        <div class="panel-title">访客类型构成与转化</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-visitor"></div>
+        <div class="mask" id="mask-visitor"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="panel-head">
+        <div class="panel-title">区域会话量分布 <span class="tag">Region 为匿名编码</span></div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-region"></div>
+        <div class="mask" id="mask-region"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 第三行：流量类型 / 页面深度 / 跳出退出 / 周末 ==================== -->
+  <section class="row-3">
+    <div class="panel span-3">
+      <div class="panel-head">
+        <div class="panel-title">流量类型效率 Top10</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-traffic"></div>
+        <div class="mask" id="mask-traffic"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="panel-head">
+        <div class="panel-title">页面访问深度分层</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-depth"></div>
+        <div class="mask" id="mask-depth"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="panel-head">
+        <div class="panel-title">跳出率 / 退出率分箱</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-bounce"></div>
+        <div class="mask" id="mask-bounce"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+
+    <div class="panel span-3">
+      <div class="panel-head">
+        <div class="panel-title">周末 / 工作日转化对比</div>
+      </div>
+      <div class="panel-body">
+        <div class="chart" id="chart-weekend"></div>
+        <div class="mask" id="mask-weekend"><div class="spin"></div><span>数据加载中…</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 第四行：会话明细 CRUD ==================== -->
+  <section class="row-4">
+    <div class="panel" style="flex:1 1 auto">
+      <div class="panel-head" style="flex:0 0 34px;height:34px">
+        <div class="panel-title">访客会话明细管理 <span class="tag">ods_visitor_session　真实 MySQL 增删改查</span></div>
+        <div class="panel-title" style="font-size:11.5px;font-weight:400;color:var(--txt-3)" id="table-total">共 -- 条</div>
+      </div>
+      <div class="table-wrap">
+        <div class="toolbar">
+          <select id="f-month">
+            <option value="">全部月份</option>
+          </select>
+          <select id="f-visitor">
+            <option value="">全部访客类型</option>
+            <option value="Returning_Visitor">Returning_Visitor（回访）</option>
+            <option value="New_Visitor">New_Visitor（新访客）</option>
+            <option value="Other">Other（其他）</option>
+          </select>
+          <select id="f-revenue">
+            <option value="">全部成交状态</option>
+            <option value="1">已成交</option>
+            <option value="0">未成交</option>
+          </select>
+          <button class="btn" id="btn-search">查询</button>
+          <button class="btn" id="btn-reset">重置</button>
+          <div class="spacer"></div>
+          <button class="btn primary" id="btn-add">+ 新增会话</button>
+          <button class="btn" id="btn-refresh-all">刷新数据</button>
+        </div>
+
+        <div class="table-scroll">
+          <table class="grid">
+            <thead>
+              <tr>
+                <th style="width:88px">会话ID</th>
+                <th style="width:78px">月份</th>
+                <th style="width:150px">访客类型</th>
+                <th style="width:96px" class="num">流量类型</th>
+                <th style="width:96px" class="num">区域编码</th>
+                <th style="width:92px" class="num">页面深度</th>
+                <th style="width:110px" class="num">停留时长(s)</th>
+                <th style="width:104px" class="num">PageValues</th>
+                <th style="width:92px" class="num">跳出率</th>
+                <th style="width:86px" class="num">退出率</th>
+                <th style="width:92px">是否成交</th>
+                <th style="width:124px" class="act">操作</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="12" style="text-align:center;color:var(--txt-3);height:80px">正在加载会话明细…</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pager">
+          <span class="info" id="page-info">第 1 / 1 页</span>
+          <div class="spacer"></div>
+          <span class="info">每页</span>
+          <select id="f-pagesize" style="width:70px">
+            <option value="5" selected>5</option>
+            <option value="6">6</option>
+            <option value="8">8</option>
+          </select>
+          <button class="btn tiny" id="btn-prev">上一页</button>
+          <button class="btn tiny" id="btn-next">下一页</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================== 新增/编辑弹窗 ==================== -->
+  <div class="overlay" id="overlay">
+    <div class="modal">
+      <div class="modal-head">
+        <div class="m-title" id="modal-title">新增访客会话</div>
+        <div class="close" id="modal-close">×</div>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <div class="field">
+          <label>访问月份<span class="req">*</span></label>
+          <select id="fm-month"></select>
+        </div>
+        <div class="field">
+          <label>访客类型<span class="req">*</span></label>
+          <select id="fm-visitor">
+            <option value="Returning_Visitor">Returning_Visitor（回访）</option>
+            <option value="New_Visitor">New_Visitor（新访客）</option>
+            <option value="Other">Other（其他）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>是否成交<span class="req">*</span></label>
+          <select id="fm-revenue">
+            <option value="0">否（0）</option>
+            <option value="1">是（1）</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>流量类型编码（1-20）<span class="req">*</span></label>
+          <input type="number" id="fm-traffic" min="1" max="20" value="2" />
+        </div>
+        <div class="field">
+          <label>区域编码（1-9）<span class="req">*</span></label>
+          <input type="number" id="fm-region" min="1" max="9" value="1" />
+        </div>
+        <div class="field">
+          <label>操作系统编码（1-8）<span class="req">*</span></label>
+          <input type="number" id="fm-os" min="1" max="8" value="2" />
+        </div>
+        <div class="field">
+          <label>浏览器编码（1-13）<span class="req">*</span></label>
+          <input type="number" id="fm-browser" min="1" max="13" value="2" />
+        </div>
+        <div class="field">
+          <label>页面深度（页）<span class="req">*</span></label>
+          <input type="number" id="fm-depth" min="0" value="10" />
+        </div>
+        <div class="field">
+          <label>总停留时长（秒）<span class="req">*</span></label>
+          <input type="number" id="fm-duration" min="0" step="0.1" value="300" />
+        </div>
+        <div class="field">
+          <label>跳出率（0-0.2）<span class="req">*</span></label>
+          <input type="number" id="fm-bounce" min="0" max="0.2" step="0.001" value="0.02" />
+        </div>
+        <div class="field">
+          <label>退出率（0-0.2）<span class="req">*</span></label>
+          <input type="number" id="fm-exit" min="0" max="0.2" step="0.001" value="0.05" />
+        </div>
+        <div class="field">
+          <label>PageValues 页面价值</label>
+          <input type="number" id="fm-pv" min="0" step="0.1" value="0" />
+        </div>
+        <div class="field">
+          <label>特殊日期接近度（0-1）</label>
+          <select id="fm-special">
+            <option value="0">0（非特殊日）</option>
+            <option value="0.2">0.2</option>
+            <option value="0.4">0.4</option>
+            <option value="0.6">0.6</option>
+            <option value="0.8">0.8</option>
+            <option value="1">1.0</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>是否周末</label>
+          <select id="fm-weekend">
+            <option value="0">否（工作日）</option>
+            <option value="1">是（周末）</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <div class="hint" id="modal-hint"></div>
+        <button class="btn" id="modal-cancel">取消</button>
+        <button class="btn primary" id="modal-save">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toast-host"></div>
+  <div id="fatal"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* ============================================================
+   * 0. 基础配置
+   * ============================================================ */
+  // 统一使用 localhost，避免与 127.0.0.1 混用导致 CORS / 会话不一致
+  var API_BASE = 'http://localhost:8080';
+
+  var MONTHS = [
+    { num: 1,  name: 'Jan', cn: '1月' },  { num: 2,  name: 'Feb', cn: '2月' },
+    { num: 3,  name: 'Mar', cn: '3月' },  { num: 4,  name: 'Apr', cn: '4月' },
+    { num: 5,  name: 'May', cn: '5月' },  { num: 6,  name: 'June', cn: '6月' },
+    { num: 7,  name: 'Jul', cn: '7月' },  { num: 8,  name: 'Aug', cn: '8月' },
+    { num: 9,  name: 'Sep', cn: '9月' },  { num: 10, name: 'Oct', cn: '10月' },
+    { num: 11, name: 'Nov', cn: '11月' }, { num: 12, name: 'Dec', cn: '12月' }
+  ];
+  var MONTH_CN = {};
+  MONTHS.forEach(function (m) { MONTH_CN[m.num] = m.cn; });
+  var MONTH_NUM = {};
+  MONTHS.forEach(function (m) { MONTH_NUM[m.name] = m.num; });
+
+  var COLOR = {
+    cyan: '#22d3ee', blue: '#3b82f6', purple: '#a855f7', green: '#10b981',
+    amber: '#f59e0b', red: '#f43f5e', pink: '#fb7185', sky: '#38bdf8', indigo: '#818cf8'
+  };
+  var PALETTE = [COLOR.cyan, COLOR.blue, COLOR.purple, COLOR.green, COLOR.amber,
+                 COLOR.pink, COLOR.sky, COLOR.indigo, '#2dd4bf', '#facc15'];
+
+  var AXIS_TEXT = { color: '#8fa9c9', fontSize: 11 };
+  var AXIS_LINE = { lineStyle: { color: 'rgba(64,158,255,.28)' } };
+  var SPLIT_LINE = { lineStyle: { color: 'rgba(64,158,255,.12)', type: 'dashed' } };
+
+  /* ============================================================
+   * 1. 工具函数
+   * ============================================================ */
+  function showFatal(msg) {
+    var el = document.getElementById('fatal');
+    el.textContent = msg;
+    el.style.display = 'block';
+    setTimeout(function () { el.style.display = 'none'; }, 8000);
+  }
+
+  function toast(msg, kind) {
+    var host = document.getElementById('toast-host');
+    var el = document.createElement('div');
+    el.className = 'toast' + (kind ? ' ' + kind : '');
+    el.textContent = msg;
+    host.appendChild(el);
+    setTimeout(function () {
+      el.style.transition = 'opacity .3s';
+      el.style.opacity = '0';
+      setTimeout(function () { host.removeChild(el); }, 320);
+    }, 2600);
+  }
+
+  function mask(el, state, text) {
+    var m = document.getElementById('mask-' + el);
+    if (!m) return;
+    if (state) {
+      m.className = 'mask show' + (state === 'err' ? ' err' : '');
+      var s = m.querySelector('span');
+      if (s && text) s.textContent = text;
+    } else {
+      m.className = 'mask';
+    }
+  }
+
+  function num(v, d) {
+    if (v === null || v === undefined || isNaN(Number(v))) return '--';
+    return Number(v).toLocaleString('en-US', { minimumFractionDigits: d || 0, maximumFractionDigits: d || 0 });
+  }
+  function pct(v, d) {
+    if (v === null || v === undefined || isNaN(Number(v))) return '--';
+    return (Number(v) * 100).toFixed(d === undefined ? 2 : d);
+  }
+  function pctNum(v, d) {
+    if (v === null || v === undefined || isNaN(Number(v))) return 0;
+    return +(Number(v) * 100).toFixed(d === undefined ? 2 : d);
+  }
+
+  /* ============================================================
+   * 2. 自适应缩放（1920x1080 基准）
+   * ============================================================ */
+  function fitScreen() {
+    var w = window.innerWidth, h = window.innerHeight;
+    var scale = Math.min(w / 1920, h / 1080);
+    var screenEl = document.getElementById('screen');
+    screenEl.style.transform = 'scale(' + scale + ')';
+    screenEl.style.left = Math.max(0, (w - 1920 * scale) / 2) + 'px';
+    screenEl.style.top = Math.max(0, (h - 1080 * scale) / 2) + 'px';
+  }
+  window.addEventListener('resize', fitScreen);
+  fitScreen();
+
+  /* ============================================================
+   * 3. HTTP 客户端（统一解包 Result<T>）
+   * ============================================================ */
+  if (typeof window.axios === 'undefined') {
+    showFatal('axios 加载失败：本地 vendor/axios.min.js 与 CDN 均不可用，界面无法请求后端接口。');
+  }
+  if (typeof window.echarts === 'undefined') {
+    showFatal('ECharts 加载失败：本地 vendor/echarts.min.js 与 CDN 均不可用，图表无法渲染。');
+  }
+
+  var http = window.axios ? window.axios.create({ baseURL: API_BASE, timeout: 10000 }) : null;
+  if (http) {
+    http.interceptors.response.use(function (res) {
+      var body = res.data;
+      if (body && typeof body === 'object' && 'code' in body) {
+        if (body.code === 200) return body.data;
+        return Promise.reject(new Error(body.msg || ('接口返回 code=' + body.code)));
+      }
+      return body;
+    }, function (err) {
+      var msg = '网络请求失败';
+      if (err && err.response) msg = 'HTTP ' + err.response.status + ' ' + (err.response.statusText || '');
+      else if (err && err.code === 'ECONNABORTED') msg = '请求超时（后端未响应）';
+      else if (err && err.message) msg = err.message;
+      return Promise.reject(new Error(msg));
+    });
+  }
+
+  function apiGet(url, params) { return http.get(url, { params: params || {} }); }
+  function apiPost(url, body) { return http.post(url, body); }
+  function apiPut(url, body) { return http.put(url, body); }
+  function apiDelete(url) { return http.delete(url); }
+
+  /* ============================================================
+   * 4. ECharts 通用配置
+   * ============================================================ */
+  var charts = {};
+  function initChart(id) {
+    var el = document.getElementById(id);
+    if (!el || typeof window.echarts === 'undefined') return null;
+    var c = window.echarts.init(el, null, { renderer: 'canvas' });
+    charts[id] = c;
+    return c;
+  }
+  function baseGrid(extra) {
+    var g = { left: 52, right: 52, top: 42, bottom: 30 };
+    if (extra) for (var k in extra) g[k] = extra[k];
+    return g;
+  }
+
+  /* ============================================================
+   * 5. 图表渲染
+   * ============================================================ */
+
+  /* 5.1 月度访问量与转化趋势 —— 支持三种呈现模式（柱状 / 折线 / 面积） */
+  var chartMonthly = null;
+  var monthlyData = null;          // 缓存原始数据，切换模式时复用
+  var monthlyMode = 'bar';         // 当前模式
+
+  function renderMonthly(list) {
+    monthlyData = list;
+    drawMonthly(monthlyMode);
+  }
+
+  /* 按指定模式绘制月度图 */
+  function drawMonthly(mode) {
+    if (!chartMonthly || !monthlyData) return;
+    var list = monthlyData;
+    var c = chartMonthly;
+    var cats = [], sessions = [], convRate = [], converts = [];
+    list.forEach(function (r) {
+      var mn = r.monthNum || MONTH_NUM[r.month] || 0;
+      cats.push(MONTH_CN[mn] || (mn + '月'));
+      sessions.push(r.sessions || 0);
+      converts.push(r.conversions || 0);
+      convRate.push(pctNum(r.conversionRate, 2));
+    });
+
+    /* --- 公共部分：tooltip / grid / xAxis --- */
+    var base = {
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: mode === 'bar' ? 'shadow' : 'line', shadowStyle: { color: 'rgba(34,211,238,.08)' },
+                       lineStyle: { color: 'rgba(34,211,238,.45)', width: 1, type: 'dashed' } },
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (ps) {
+          var idx = ps[0].dataIndex;
+          var emptyNote = sessions[idx] === 0
+            ? '<div style="margin-top:3px;color:#f59e0b;font-size:11px">※ 原始数据集该月无访问记录</div>'
+            : '';
+          return '<div style="font-weight:700;margin-bottom:4px">' + cats[idx] + '</div>'
+            + '会话数：<b style="color:' + COLOR.cyan + '">' + num(sessions[idx]) + '</b> 次<br/>'
+            + '成交会话：<b style="color:' + COLOR.green + '">' + num(converts[idx]) + '</b> 次<br/>'
+            + '转化率：<b style="color:' + COLOR.amber + '">' + convRate[idx].toFixed(2) + '%</b>'
+            + emptyNote;
+        }
+      },
+      grid: baseGrid({ left: 56, right: 58, top: 30, bottom: 46 }),
+      xAxis: {
+        type: 'category',
+        data: cats,
+        axisLine: AXIS_LINE,
+        axisTick: { show: false },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 11.5 })
+      }
+    };
+
+    var option;
+
+    /* ========== 模式一：柱状 + 折线（绝对值对比） ========== */
+    if (mode === 'bar') {
+      option = Object.assign({}, base, {
+        legend: {
+          data: ['会话数 (次)', '转化率 (%)'],
+          bottom: 0, left: 'center', itemWidth: 12, itemHeight: 8,
+          textStyle: { color: '#9db8d8', fontSize: 11.5 }
+        },
+        yAxis: [
+          {
+            type: 'value', name: '会话数 (次)',
+            nameTextStyle: { color: '#7f99bb', fontSize: 11, padding: [0, 0, 0, 8] },
+            axisLabel: Object.assign({}, AXIS_TEXT, { formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+            splitLine: SPLIT_LINE, axisLine: { show: false }
+          },
+          {
+            type: 'value', name: '转化率 (%)', max: 100, min: 0,
+            nameTextStyle: { color: '#7f99bb', fontSize: 11, padding: [0, 8, 0, 0] },
+            axisLabel: Object.assign({}, AXIS_TEXT, { formatter: '{value}%' }),
+            splitLine: { show: false }, axisLine: { show: false }
+          }
+        ],
+        series: [
+          {
+            name: '会话数 (次)', type: 'bar', barWidth: '46%',
+            animationDelay: function (idx) { return idx * 55; },
+            data: sessions,
+            itemStyle: {
+              borderRadius: [4, 4, 0, 0],
+              color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(34,211,238,.95)' },
+                { offset: 1, color: 'rgba(34,211,238,.16)' }
+              ])
+            },
+            emphasis: { itemStyle: { color: 'rgba(34,211,238,1)' } }
+          },
+          {
+            name: '转化率 (%)', type: 'line', yAxisIndex: 1, smooth: true,
+            symbol: 'circle', symbolSize: 7,
+            data: convRate,
+            lineStyle: { width: 2.4, color: COLOR.amber, shadowColor: 'rgba(245,158,11,.55)', shadowBlur: 10 },
+            itemStyle: { color: COLOR.amber, borderColor: '#0b1b34', borderWidth: 2 },
+            label: {
+              show: true, position: 'top', color: '#fcd34d', fontSize: 10.5,
+              formatter: function (p) { return p.value > 0 ? p.value.toFixed(1) + '%' : ''; }
+            }
+          }
+        ]
+      });
+
+    /* ========== 模式二：双折线（看趋势走向） ========== */
+    } else if (mode === 'line') {
+      option = Object.assign({}, base, {
+        legend: {
+          data: ['会话数 (次)', '转化率 (%)'],
+          bottom: 0, left: 'center', itemWidth: 12, itemHeight: 8,
+          textStyle: { color: '#9db8d8', fontSize: 11.5 }
+        },
+        yAxis: [
+          {
+            type: 'value', name: '会话数 (次)',
+            nameTextStyle: { color: '#7f99bb', fontSize: 11, padding: [0, 0, 0, 8] },
+            axisLabel: Object.assign({}, AXIS_TEXT, { formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+            splitLine: SPLIT_LINE, axisLine: { show: false }
+          },
+          {
+            type: 'value', name: '转化率 (%)', max: 30, min: 0,
+            nameTextStyle: { color: '#7f99bb', fontSize: 11, padding: [0, 8, 0, 0] },
+            axisLabel: Object.assign({}, AXIS_TEXT, { formatter: '{value}%' }),
+            splitLine: { show: false }, axisLine: { show: false }
+          }
+        ],
+        series: [
+          {
+            name: '会话数 (次)', type: 'line', smooth: true,
+            symbol: 'circle', symbolSize: 8,
+            data: sessions,
+            lineStyle: { width: 2.6, color: COLOR.cyan, shadowColor: 'rgba(34,211,238,.6)', shadowBlur: 12 },
+            itemStyle: { color: COLOR.cyan, borderColor: '#0b1b34', borderWidth: 2 },
+            areaStyle: {
+              color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(34,211,238,.28)' },
+                { offset: 1, color: 'rgba(34,211,238,0)' }
+              ])
+            }
+          },
+          {
+            name: '转化率 (%)', type: 'line', yAxisIndex: 1, smooth: true,
+            symbol: 'emptyCircle', symbolSize: 8,
+            data: convRate,
+            lineStyle: { width: 2.6, color: COLOR.amber, type: 'dashed', shadowColor: 'rgba(245,158,11,.5)', shadowBlur: 10 },
+            itemStyle: { color: COLOR.amber, borderColor: '#0b1b34', borderWidth: 2 },
+            label: {
+              show: true, position: 'top', color: '#fcd34d', fontSize: 10.5,
+              formatter: function (p) { return p.value > 0 ? p.value.toFixed(1) + '%' : ''; }
+            }
+          }
+        ]
+      });
+
+    /* ========== 模式三：堆叠面积（看累积占比） ========== */
+    } else {
+      var zeroBase = sessions.map(function (v) { return 0; });
+      option = Object.assign({}, base, {
+        legend: {
+          data: ['会话数 (次)', '转化率 (%)'],
+          bottom: 0, left: 'center', itemWidth: 12, itemHeight: 8,
+          textStyle: { color: '#9db8d8', fontSize: 11.5 }
+        },
+        yAxis: [
+          {
+            type: 'value', name: '会话数 (次)',
+            nameTextStyle: { color: '#7f99bb', fontSize: 11, padding: [0, 0, 0, 8] },
+            axisLabel: Object.assign({}, AXIS_TEXT, { formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+            splitLine: SPLIT_LINE, axisLine: { show: false }
+          },
+          {
+            type: 'value', name: '转化率 (%)', max: 30, min: 0,
+            nameTextStyle: { color: '#7f99bb', fontSize: 11, padding: [0, 8, 0, 0] },
+            axisLabel: Object.assign({}, AXIS_TEXT, { formatter: '{value}%' }),
+            splitLine: { show: false }, axisLine: { show: false }
+          }
+        ],
+        series: [
+          {
+            name: '会话数 (次)', type: 'line', smooth: true, stack: 'total',
+            symbol: 'none',
+            data: sessions,
+            lineStyle: { width: 1.6, color: 'rgba(34,211,238,.9)' },
+            itemStyle: { color: COLOR.cyan },
+            areaStyle: {
+              opacity: 1,
+              color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                { offset: 0, color: 'rgba(34,211,238,.72)' },
+                { offset: 1, color: 'rgba(34,211,238,.10)' }
+              ])
+            }
+          },
+          {
+            name: '转化率 (%)', type: 'line', yAxisIndex: 1, smooth: true,
+            symbol: 'circle', symbolSize: 7,
+            data: convRate,
+            lineStyle: { width: 2.4, color: COLOR.amber },
+            itemStyle: { color: COLOR.amber, borderColor: '#0b1b34', borderWidth: 2 },
+            label: {
+              show: true, position: 'top', color: '#fcd34d', fontSize: 10.5,
+              formatter: function (p) { return p.value > 0 ? p.value.toFixed(1) + '%' : ''; }
+            }
+          }
+        ]
+      });
+    }
+
+    c.setOption(option, true);
+  }
+
+  /* 绑定月度图切换按钮 */
+  function bindMonthlySwitch() {
+    var box = document.getElementById('switch-monthly');
+    if (!box) return;
+    box.addEventListener('click', function (e) {
+      var btn = e.target.closest ? e.target.closest('.sw-btn') : null;
+      if (!btn) return;
+      var mode = btn.getAttribute('data-mode');
+      if (!mode || mode === monthlyMode) return;
+      monthlyMode = mode;
+      Array.prototype.forEach.call(box.querySelectorAll('.sw-btn'), function (b) {
+        b.classList.toggle('active', b === btn);
+      });
+      drawMonthly(mode);
+    });
+  }
+
+  /* 5.2 访客类型构成 —— 环形图 */
+  var chartVisitor = null;
+  function renderVisitor(list) {
+    var c = chartVisitor;
+    var data = list.map(function (r, i) {
+      return {
+        name: r.visitorType,
+        value: r.sessions,
+        conversionRate: r.conversionRate,
+        conversions: r.conversions,
+        pct: r.pct,
+        itemStyle: { color: PALETTE[i % PALETTE.length] }
+      };
+    });
+    var total = data.reduce(function (s, d) { return s + d.value; }, 0);
+    c.setOption({
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'item',
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (p) {
+          var d = p.data;
+          return '<div style="font-weight:700;margin-bottom:4px">' + d.name + '</div>'
+            + '会话数：<b style="color:' + COLOR.cyan + '">' + num(d.value) + '</b> 次（占比 ' + pctNum(d.pct, 2).toFixed(2) + '%）<br/>'
+            + '成交会话：<b style="color:' + COLOR.green + '">' + num(d.conversions) + '</b> 次<br/>'
+            + '转化率：<b style="color:' + COLOR.amber + '">' + pctNum(d.conversionRate, 2).toFixed(2) + '%</b>';
+        }
+      },
+      legend: {
+        bottom: 2, left: 'center', itemWidth: 10, itemHeight: 8, itemGap: 10,
+        textStyle: { color: '#9db8d8', fontSize: 11 },
+        formatter: function (name) {
+          return name === 'Returning_Visitor' ? '回访' : (name === 'New_Visitor' ? '新访客' : '其他');
+        }
+      },
+      series: [{
+        type: 'pie',
+        animationType: 'scale',
+        animationEasing: 'elasticOut',
+        animationDuration: 1400,
+        radius: ['46%', '68%'],
+        center: ['50%', '45%'],
+        avoidLabelOverlap: true,
+        padAngle: 2,
+        itemStyle: { borderRadius: 6, borderColor: '#08152c', borderWidth: 2 },
+        label: {
+          show: true, formatter: function (p) {
+            var nm = p.name === 'Returning_Visitor' ? '回访访客'
+                   : (p.name === 'New_Visitor' ? '新访客' : '其他');
+            return '{b|' + nm + '}\n{c|' + p.percent + '%}';
+          }, color: '#dbeafe',
+          rich: {
+            b: { fontSize: 11, color: '#9db8d8', lineHeight: 15 },
+            c: { fontSize: 13, fontWeight: 700, color: '#e7f1ff', lineHeight: 17 }
+          }
+        },
+        labelLine: { length: 8, length2: 10, lineStyle: { color: 'rgba(64,158,255,.4)' } },
+        emphasis: {
+          scale: true, scaleSize: 6,
+          itemStyle: { shadowBlur: 18, shadowColor: 'rgba(34,211,238,.5)' }
+        },
+        data: data
+      }],
+      graphic: [{
+        type: 'text', left: 'center', top: '38%',
+        style: {
+          text: num(total), fill: '#eaf6ff', fontSize: 20, fontWeight: 'bold',
+          textAlign: 'center', textVerticalAlign: 'middle'
+        }
+      }, {
+        type: 'text', left: 'center', top: '47%',
+        style: {
+          text: '总会话数(次)', fill: '#7f99bb', fontSize: 11, textAlign: 'center'
+        }
+      }]
+    }, true);
+  }
+
+  /* 5.3 区域分布 —— 横向条形 + 转化率标签 */
+  var chartRegion = null;
+  function renderRegion(list) {
+    var c = chartRegion;
+    var rows = list.slice().sort(function (a, b) { return a.sessions - b.sessions; });
+    var cats = rows.map(function (r) { return '编码 ' + r.region; });
+    var sessions = rows.map(function (r) { return r.sessions; });
+    var cvs = rows.map(function (r) { return pctNum(r.conversionRate, 2); });
+    c.setOption({
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(34,211,238,.08)' } },
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (ps) {
+          var i = ps[0].dataIndex, r = rows[i];
+          return '<div style="font-weight:700;margin-bottom:4px">' + r.region + ' 号区域编码</div>'
+            + '会话数：<b style="color:' + COLOR.cyan + '">' + num(r.sessions) + '</b> 次<br/>'
+            + '成交会话：<b style="color:' + COLOR.green + '">' + num(r.conversions) + '</b> 次<br/>'
+            + '转化率：<b style="color:' + COLOR.amber + '">' + pctNum(r.conversionRate, 2).toFixed(2) + '%</b>';
+        }
+      },
+      legend: { show: true, data: ['会话数 (次)'], top: 2, right: 6, itemWidth: 11, itemHeight: 8, textStyle: { color: '#9db8d8', fontSize: 11 } },
+      grid: baseGrid({ left: 62, right: 74, top: 40, bottom: 26 }),
+      xAxis: {
+        type: 'value', name: '会话数(次)',
+        nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10.5, formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+        splitLine: SPLIT_LINE, axisLine: { show: false }
+      },
+      yAxis: {
+        type: 'category', data: cats,
+        axisLine: AXIS_LINE, axisTick: { show: false },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 11 })
+      },
+      series: [{
+        name: '会话数 (次)', type: 'bar', barWidth: '58%',
+        animationDelay: function (idx) { return idx * 55; },
+        data: sessions,
+        itemStyle: {
+          borderRadius: [0, 4, 4, 0],
+          color: new window.echarts.graphic.LinearGradient(0, 0, 1, 0, [
+            { offset: 0, color: 'rgba(59,130,246,.28)' },
+            { offset: 1, color: 'rgba(56,189,248,.95)' }
+          ])
+        },
+        label: {
+          show: true, position: 'right', color: '#a5c8ea', fontSize: 10.5,
+          formatter: function (p) {
+            return num(p.value) + ' / ' + cvs[p.dataIndex].toFixed(1) + '%';
+          }
+        }
+      }]
+    }, true);
+  }
+
+  /* 5.4 流量类型效率 Top10 —— 横向条形(会话数) + 折线(转化率) */
+  var chartTraffic = null;
+  function renderTraffic(list) {
+    var c = chartTraffic;
+    var rows = list.slice(0, 10);
+    var cats = rows.map(function (r) { return 'T' + r.trafficType; });
+    var sessions = rows.map(function (r) { return r.sessions; });
+    var cvs = rows.map(function (r) { return pctNum(r.conversionRate, 2); });
+    c.setOption({
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(34,211,238,.08)' } },
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (ps) {
+          var i = ps[0].dataIndex, r = rows[i];
+          return '<div style="font-weight:700;margin-bottom:4px">流量类型编码 ' + r.trafficType + '</div>'
+            + '会话数：<b style="color:' + COLOR.cyan + '">' + num(r.sessions) + '</b> 次<br/>'
+            + '成交会话：<b style="color:' + COLOR.green + '">' + num(r.conversions) + '</b> 次<br/>'
+            + '转化率：<b style="color:' + COLOR.amber + '">' + pctNum(r.conversionRate, 2).toFixed(2) + '%</b>';
+        }
+      },
+      legend: { data: ['会话数 (次)', '转化率 (%)'], top: 2, left: 'center', itemWidth: 10, itemHeight: 8, textStyle: { color: '#9db8d8', fontSize: 10.5 } },
+      grid: baseGrid({ left: 44, right: 46, top: 48, bottom: 26 }),
+      xAxis: {
+        type: 'category', data: cats,
+        axisLine: AXIS_LINE, axisTick: { show: false },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10.5, interval: 0, rotate: 0 })
+      },
+      yAxis: [
+        {
+          type: 'value', name: '会话数(次)',
+          nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+          axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+          splitLine: SPLIT_LINE, axisLine: { show: false }
+        },
+        {
+          type: 'value', name: '转化率(%)', max: 40,
+          nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+          axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: '{value}%' }),
+          splitLine: { show: false }, axisLine: { show: false }
+        }
+      ],
+      series: [
+        {
+          name: '会话数 (次)', type: 'bar', barWidth: '52%', data: sessions,
+          animationDelay: function (idx) { return idx * 55; },
+          itemStyle: {
+            borderRadius: [4, 4, 0, 0],
+            color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(129,140,248,.95)' },
+              { offset: 1, color: 'rgba(129,140,248,.14)' }
+            ])
+          }
+        },
+        {
+          name: '转化率 (%)', type: 'line', yAxisIndex: 1, smooth: true,
+          symbol: 'circle', symbolSize: 5, data: cvs,
+          lineStyle: { width: 2, color: COLOR.green },
+          itemStyle: { color: COLOR.green }
+        }
+      ]
+    }, true);
+  }
+
+  /* 5.5 页面访问深度分层 —— 柱状(会话数) + 折线(转化率) */
+  var chartDepth = null;
+  function renderDepth(list) {
+    var c = chartDepth;
+    var cats = list.map(function (r) { return r.depthLabel; });
+    var sessions = list.map(function (r) { return r.sessions; });
+    var cvs = list.map(function (r) { return pctNum(r.conversionRate, 2); });
+    c.setOption({
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(34,211,238,.08)' } },
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (ps) {
+          var i = ps[0].dataIndex, r = list[i];
+          return '<div style="font-weight:700;margin-bottom:4px">页面深度 ' + r.depthLabel + ' 页</div>'
+            + '会话数：<b style="color:' + COLOR.cyan + '">' + num(r.sessions) + '</b> 次<br/>'
+            + '成交会话：<b style="color:' + COLOR.green + '">' + num(r.conversions) + '</b> 次<br/>'
+            + '转化率：<b style="color:' + COLOR.amber + '">' + pctNum(r.conversionRate, 2).toFixed(2) + '%</b>';
+        }
+      },
+      legend: { data: ['会话数 (次)', '转化率 (%)'], top: 2, left: 'center', itemWidth: 10, itemHeight: 8, textStyle: { color: '#9db8d8', fontSize: 10.5 } },
+      grid: baseGrid({ left: 44, right: 46, top: 48, bottom: 26 }),
+      xAxis: {
+        type: 'category', data: cats,
+        axisLine: AXIS_LINE, axisTick: { show: false },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10.5, interval: 0 })
+      },
+      yAxis: [
+        {
+          type: 'value', name: '会话数(次)',
+          nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+          axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+          splitLine: SPLIT_LINE, axisLine: { show: false }
+        },
+        {
+          type: 'value', name: '转化率(%)', max: 40,
+          nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+          axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: '{value}%' }),
+          splitLine: { show: false }, axisLine: { show: false }
+        }
+      ],
+      series: [
+        {
+          name: '会话数 (次)', type: 'bar', barWidth: '46%', data: sessions,
+          animationDelay: function (idx) { return idx * 55; },
+          itemStyle: {
+            borderRadius: [4, 4, 0, 0],
+            color: new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: 'rgba(168,85,247,.95)' },
+              { offset: 1, color: 'rgba(168,85,247,.14)' }
+            ])
+          }
+        },
+        {
+          name: '转化率 (%)', type: 'line', yAxisIndex: 1, smooth: true,
+          symbol: 'circle', symbolSize: 5, data: cvs,
+          lineStyle: { width: 2, color: COLOR.amber },
+          itemStyle: { color: COLOR.amber }
+        }
+      ]
+    }, true);
+  }
+
+  /* 5.6 跳出率 / 退出率分箱 —— 兼容两种返回结构 */
+  var chartBounce = null;
+  function renderBounce(data) {
+    var c = chartBounce;
+    var groups = {};   // 展示名 -> [{label, sessions, conversionRate}]
+    var rawName = {};  // 展示名 -> 原始 metric 名
+    var labels = [];
+
+    var NAME_CN = { bounce_rate: '跳出率', exit_rate: '退出率', bounce: '跳出率', exit: '退出率' };
+
+    function push(metricName, arr) {
+      var cn = NAME_CN[metricName] || metricName;
+      if (!groups[cn]) { groups[cn] = []; rawName[cn] = metricName; }
+      arr.forEach(function (r) {
+        var lb = r.rangeLabel || r.binLabel || r.label || '';
+        if (labels.indexOf(lb) < 0) labels.push(lb);
+        groups[cn].push({ label: lb, sessions: r.sessions || 0, conversionRate: r.conversionRate });
+      });
+    }
+
+    if (Array.isArray(data)) {
+      // 若元素带类目字段，按类目拆分；否则视为单一序列
+      var hasKind = data.length && (data[0].metric || data[0].metricCn || data[0].type || data[0].rateType);
+      if (hasKind) {
+        var g = {};
+        data.forEach(function (r) {
+          // 优先用后端给的中文指标名，图例直接是「跳出率 / 退出率」
+          var k = r.metricCn || r.metric || r.type || r.rateType;
+          (g[k] = g[k] || []).push(r);
+        });
+        Object.keys(g).forEach(function (k) { push(k, g[k]); });
+      } else {
+        push('bounce_rate', data);
+      }
+    } else if (data && typeof data === 'object') {
+      ['bounceBins', 'bounce', 'bounceRate'].forEach(function (k) { if (Array.isArray(data[k])) push('bounce_rate', data[k]); });
+      ['exitBins', 'exit', 'exitRate'].forEach(function (k) { if (Array.isArray(data[k])) push('exit_rate', data[k]); });
+    }
+
+    var names = Object.keys(groups);
+    var isExit = function (n) {
+      // 兼容中文序列名「退出率」与英文 metric 名 exit_rate
+      return n.indexOf('退出') >= 0 || n.indexOf('exit') >= 0;
+    };
+    var series = names.map(function (name, i) {
+      var rows = groups[name];
+      var map = {};
+      rows.forEach(function (r) { map[r.label] = r; });
+      return {
+        name: name, type: 'bar', barWidth: isExit(name) ? 12 : 14, barGap: '10%',
+        animationDelay: function (idx) { return idx * 55; },
+        data: labels.map(function (lb) { return map[lb] ? map[lb].sessions : 0; }),
+        itemStyle: {
+          borderRadius: [3, 3, 0, 0],
+          color: isExit(name) ? 'rgba(244,63,94,.78)' : 'rgba(34,211,238,.82)'
+        }
+      };
+    });
+
+    var rawMap = {};
+    names.forEach(function (n) { groups[n].forEach(function (r) { rawMap[n + '|' + r.label] = r; }); });
+
+    c.setOption({
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(34,211,238,.08)' } },
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (ps) {
+          var lb = ps[0].axisValue;
+          var html = '<div style="font-weight:700;margin-bottom:4px">率值区间 ' + lb + '</div>';
+          ps.forEach(function (p) {
+            var r = rawMap[p.seriesName + '|' + lb];
+            if (!r) return;
+            html += p.marker + p.seriesName + '：<b>' + num(r.sessions) + '</b> 次';
+            if (r.conversionRate !== undefined && r.conversionRate !== null) {
+              html += '，转化率 <b style="color:' + COLOR.amber + '">' + pctNum(r.conversionRate, 2).toFixed(2) + '%</b>';
+            }
+            html += '<br/>';
+          });
+          return html;
+        }
+      },
+      legend: { data: names, top: 2, left: 'center', itemWidth: 10, itemHeight: 8, textStyle: { color: '#9db8d8', fontSize: 10.5 } },
+      grid: baseGrid({ left: 46, right: 20, top: 48, bottom: 40 }),
+      xAxis: {
+        type: 'category', data: labels,
+        axisLine: AXIS_LINE, axisTick: { show: false },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 9.5, interval: 0, rotate: 26 })
+      },
+      yAxis: {
+        type: 'value', name: '会话数(次)',
+        nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+        splitLine: SPLIT_LINE, axisLine: { show: false }
+      },
+      series: series
+    }, true);
+  }
+
+  /* 5.7 周末 / 工作日转化对比 —— 柱状 + 转化率 */
+  var chartWeekend = null;
+  function renderWeekend(list) {
+    var c = chartWeekend;
+    var cats = list.map(function (r) { return Number(r.weekend) === 1 ? '周末' : '工作日'; });
+    var sessions = list.map(function (r) { return r.sessions; });
+    var cvs = list.map(function (r) { return pctNum(r.conversionRate, 2); });
+    var convs = list.map(function (r) { return r.conversions; });
+
+    c.setOption({
+      backgroundColor: 'transparent',
+      animation: true,
+      animationDuration: 1100,
+      animationEasing: 'cubicOut',
+      animationDurationUpdate: 600,
+      animationEasingUpdate: 'cubicOut',
+      tooltip: {
+        trigger: 'axis',
+        axisPointer: { type: 'shadow', shadowStyle: { color: 'rgba(34,211,238,.08)' } },
+        backgroundColor: 'rgba(6,20,42,.96)',
+        borderColor: 'rgba(64,158,255,.45)',
+        textStyle: { color: '#dbeafe', fontSize: 12 },
+        formatter: function (ps) {
+          var i = ps[0].dataIndex;
+          return '<div style="font-weight:700;margin-bottom:4px">' + cats[i] + '</div>'
+            + '会话数：<b style="color:' + COLOR.cyan + '">' + num(sessions[i]) + '</b> 次<br/>'
+            + '成交会话：<b style="color:' + COLOR.green + '">' + num(convs[i]) + '</b> 次<br/>'
+            + '转化率：<b style="color:' + COLOR.amber + '">' + cvs[i].toFixed(2) + '%</b>';
+        }
+      },
+      legend: { data: ['会话数 (次)', '转化率 (%)'], top: 2, left: 'center', itemWidth: 10, itemHeight: 8, textStyle: { color: '#9db8d8', fontSize: 10.5 } },
+      grid: baseGrid({ left: 50, right: 50, top: 48, bottom: 26 }),
+      xAxis: {
+        type: 'category', data: cats,
+        axisLine: AXIS_LINE, axisTick: { show: false },
+        axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 12 })
+      },
+      yAxis: [
+        {
+          type: 'value', name: '会话数(次)',
+          nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+          axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: function (v) { return v >= 1000 ? (v / 1000) + 'k' : v; } }),
+          splitLine: SPLIT_LINE, axisLine: { show: false }
+        },
+        {
+          type: 'value', name: '转化率(%)', max: 30,
+          nameTextStyle: { color: '#7f99bb', fontSize: 10.5 },
+          axisLabel: Object.assign({}, AXIS_TEXT, { fontSize: 10, formatter: '{value}%' }),
+          splitLine: { show: false }, axisLine: { show: false }
+        }
+      ],
+      series: [
+        {
+          name: '会话数 (次)', type: 'bar', barWidth: '38%', data: sessions,
+          animationDelay: function (idx) { return idx * 55; },
+          itemStyle: {
+            borderRadius: [5, 5, 0, 0],
+            color: function (p) {
+              return p.dataIndex === 1
+                ? new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(251,113,133,.95)' }, { offset: 1, color: 'rgba(251,113,133,.14)' }])
+                : new window.echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                    { offset: 0, color: 'rgba(34,211,238,.95)' }, { offset: 1, color: 'rgba(34,211,238,.14)' }]);
+            }
+          },
+          label: { show: true, position: 'top', color: '#bcd6f0', fontSize: 10.5, formatter: function (p) { return num(p.value); } }
+        },
+        {
+          name: '转化率 (%)', type: 'line', yAxisIndex: 1, smooth: false,
+          symbol: 'diamond', symbolSize: 11, data: cvs,
+          lineStyle: { width: 2.2, color: COLOR.amber },
+          itemStyle: { color: COLOR.amber, borderColor: '#0b1b34', borderWidth: 2 },
+          label: { show: true, position: 'top', color: '#fcd34d', fontSize: 11, formatter: function (p) { return p.value.toFixed(2) + '%'; } }
+        }
+      ]
+    }, true);
+  }
+
+  /* ============================================================
+   * 6. 数据加载
+   * ============================================================ */
+  var state = {
+    pageNum: 1,
+    pageSize: 5,
+    total: 0,
+    editingId: null,
+    timer: null,
+    countdown: 60          // 自动刷新倒计时（秒），由 tickClock 驱动
+  };
+
+  function loadOverview() {
+    return apiGet('/api/m1/overview').then(function (d) {
+      document.getElementById('kpi-sessions').innerHTML = num(d.totalSessions) + '<span class="unit">次</span>';
+      document.getElementById('kpi-revenue').innerHTML = num(d.totalRevenue) + '<span class="unit">次</span>';
+      document.getElementById('kpi-cvr').innerHTML = pct(d.conversionRate, 2) + '<span class="unit">%</span>';
+      document.getElementById('kpi-depth').innerHTML = num(d.avgPageDepth, 2) + '<span class="unit">页</span>';
+      document.getElementById('kpi-duration').innerHTML = num(d.avgDuration, 1) + '<span class="unit">秒</span>';
+      document.getElementById('kpi-bounce').innerHTML = pct(d.bounceRate, 2) + '<span class="unit">%</span>';
+      document.getElementById('kpi-exit').textContent = '退出率 ' + pct(d.exitRate, 2) + '%';
+      document.getElementById('kpi-returning').innerHTML = pct(d.returningRate, 2) + '<span class="unit">%</span>';
+      document.getElementById('kpi-new').textContent = '新访客 ' + pct(d.newVisitorRate, 2) + '%';
+    }).catch(function (e) {
+      showFatal('全局 KPI 加载失败：' + e.message);
+    });
+  }
+
+  function loadMonthly() {
+    mask('monthly', true);
+    if (!chartMonthly) chartMonthly = initChart('chart-monthly');
+    return apiGet('/api/m1/monthly-trend').then(function (d) {
+      renderMonthly(Array.isArray(d) ? d : []);
+      mask('monthly', false);
+    }).catch(function (e) {
+      mask('monthly', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadVisitor() {
+    mask('visitor', true);
+    if (!chartVisitor) chartVisitor = initChart('chart-visitor');
+    return apiGet('/api/m1/visitor-type').then(function (d) {
+      renderVisitor(Array.isArray(d) ? d : []);
+      mask('visitor', false);
+    }).catch(function (e) {
+      mask('visitor', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadRegion() {
+    mask('region', true);
+    if (!chartRegion) chartRegion = initChart('chart-region');
+    return apiGet('/api/m1/region').then(function (d) {
+      renderRegion(Array.isArray(d) ? d : []);
+      mask('region', false);
+    }).catch(function (e) {
+      mask('region', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadTraffic() {
+    mask('traffic', true);
+    if (!chartTraffic) chartTraffic = initChart('chart-traffic');
+    return apiGet('/api/m1/traffic-source').then(function (d) {
+      renderTraffic(Array.isArray(d) ? d : []);
+      mask('traffic', false);
+    }).catch(function (e) {
+      mask('traffic', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadDepth() {
+    mask('depth', true);
+    if (!chartDepth) chartDepth = initChart('chart-depth');
+    return apiGet('/api/m1/page-depth').then(function (d) {
+      renderDepth(Array.isArray(d) ? d : []);
+      mask('depth', false);
+    }).catch(function (e) {
+      mask('depth', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadBounce() {
+    mask('bounce', true);
+    if (!chartBounce) chartBounce = initChart('chart-bounce');
+    return apiGet('/api/m1/bounce-exit').then(function (d) {
+      renderBounce(d);
+      mask('bounce', false);
+    }).catch(function (e) {
+      mask('bounce', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadWeekend() {
+    mask('weekend', true);
+    if (!chartWeekend) chartWeekend = initChart('chart-weekend');
+    return apiGet('/api/m1/weekend').then(function (d) {
+      renderWeekend(Array.isArray(d) ? d : []);
+      mask('weekend', false);
+    }).catch(function (e) {
+      mask('weekend', 'err', '加载失败：' + e.message);
+    });
+  }
+
+  function loadHealth() {
+    var dot = document.getElementById('health-dot');
+    var txt = document.getElementById('health-text');
+    if (!http) { dot.className = 'dot bad'; txt.textContent = 'HTTP 库缺失'; return; }
+    return apiGet('/api/common/health').then(function (d) {
+      dot.className = 'dot ok';
+      txt.textContent = '数据源 MySQL 在线 · ' + num(d.rows) + ' 行';
+    }).catch(function () {
+      dot.className = 'dot bad';
+      txt.textContent = '后端未连接（' + API_BASE + '）';
+    });
+  }
+
+  function loadAll() {
+    loadHealth();
+    loadOverview();
+    loadMonthly();
+    loadVisitor();
+    loadRegion();
+    loadTraffic();
+    loadDepth();
+    loadBounce();
+    loadWeekend();
+    loadSessions();
+  }
+
+  /* ============================================================
+   * 7. 会话明细表格
+   * ============================================================ */
+  function rowHtml(r) {
+    var vt = r.visitorType === 'Returning_Visitor' ? '回访访客'
+            : (r.visitorType === 'New_Visitor' ? '新访客' : (r.visitorType || '--'));
+    return '<tr data-id="' + r.sessionId + '">'
+      + '<td>' + r.sessionId + '</td>'
+      + '<td>' + (r.month || '--') + (r.monthNum ? '（' + r.monthNum + '月）' : '') + '</td>'
+      + '<td title="' + (r.visitorType || '') + '">' + vt + '</td>'
+      + '<td class="num">' + (r.trafficType != null ? r.trafficType : '--') + '</td>'
+      + '<td class="num">' + (r.region != null ? r.region : '--') + '</td>'
+      + '<td class="num">' + (r.pageDepth != null ? r.pageDepth : '--') + '</td>'
+      + '<td class="num">' + num(r.totalDuration, 1) + '</td>'
+      + '<td class="num">' + num(r.pageValues, 2) + '</td>'
+      + '<td class="num">' + (r.bounceRates != null ? Number(r.bounceRates).toFixed(3) : '--') + '</td>'
+      + '<td class="num">' + (r.exitRates != null ? Number(r.exitRates).toFixed(3) : '--') + '</td>'
+      + '<td>' + (Number(r.revenue) === 1
+            ? '<span class="pill yes">已成交</span>'
+            : '<span class="pill no">未成交</span>') + '</td>'
+      + '<td class="act">'
+      + '  <button class="btn tiny" data-act="edit" data-id="' + r.sessionId + '">编辑</button> '
+      + '  <button class="btn tiny danger" data-act="del" data-id="' + r.sessionId + '">删除</button>'
+      + '</td>'
+      + '</tr>';
+  }
+
+  function loadSessions() {
+    var tbody = document.getElementById('tbody');
+    var params = {
+      pageNum: state.pageNum,
+      pageSize: state.pageSize
+    };
+    var m = document.getElementById('f-month').value;
+    var v = document.getElementById('f-visitor').value;
+    var rv = document.getElementById('f-revenue').value;
+    if (m) params.month = m;
+    if (v) params.visitorType = v;
+    if (rv !== '') params.revenue = rv;
+
+    return apiGet('/api/m1/session/page', params).then(function (d) {
+      var list = (d && d.list) || [];
+      state.total = (d && d.total) || 0;
+      state.pageNum = (d && d.pageNum) || state.pageNum;
+      state.pageSize = (d && d.pageSize) || state.pageSize;
+
+      if (!list.length) {
+        tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:var(--txt-3);height:80px">'
+          + '当前筛选条件下无会话记录</td></tr>';
+      } else {
+        tbody.innerHTML = list.map(rowHtml).join('');
+      }
+
+      var pages = Math.max(1, Math.ceil(state.total / state.pageSize));
+      document.getElementById('page-info').textContent = '第 ' + state.pageNum + ' / ' + pages + ' 页';
+      document.getElementById('table-total').textContent = '共 ' + num(state.total) + ' 条记录';
+      document.getElementById('btn-prev').disabled = state.pageNum <= 1;
+      document.getElementById('btn-next').disabled = state.pageNum >= pages;
+    }).catch(function (e) {
+      tbody.innerHTML = '<tr><td colspan="12" style="text-align:center;color:#fda4af;height:80px">'
+        + '会话明细加载失败：' + e.message + '</td></tr>';
+      showFatal('会话明细加载失败：' + e.message);
+    });
+  }
+
+  /* 事件委托：编辑 / 删除 */
+  document.getElementById('tbody').addEventListener('click', function (ev) {
+    var btn = ev.target.closest('button[data-act]');
+    if (!btn) return;
+    var id = btn.getAttribute('data-id');
+    if (btn.getAttribute('data-act') === 'edit') {
+      openModal(id);
+    } else if (btn.getAttribute('data-act') === 'del') {
+      if (!window.confirm('确定要删除会话 ID = ' + id + ' 的记录吗？该操作不可撤销。')) return;
+      apiDelete('/api/m1/session/' + id).then(function () {
+        toast('会话 ' + id + ' 已删除', 'ok');
+        loadSessions();
+        loadOverview();
+      }).catch(function (e) { toast('删除失败：' + e.message, 'err'); });
+    }
+  });
+
+  /* ============================================================
+   * 8. 弹窗（新增 / 编辑）
+   * ============================================================ */
+  var overlay = document.getElementById('overlay');
+
+  function fillMonthSelect() {
+    var sel = document.getElementById('fm-month');
+    sel.innerHTML = MONTHS.map(function (m) {
+      return '<option value="' + m.name + '">' + m.cn + '（' + m.name + '）</option>';
+    }).join('');
+    var f = document.getElementById('f-month');
+    f.innerHTML = '<option value="">全部月份</option>' + MONTHS.map(function (m) {
+      return '<option value="' + m.name + '">' + m.cn + '</option>';
+    }).join('');
+  }
+
+  function openModal(id) {
+    document.getElementById('modal-hint').textContent = '';
+    state.editingId = id || null;
+    document.getElementById('modal-title').textContent = id ? ('编辑会话 #' + id) : '新增访客会话';
+    if (!id) {
+      document.getElementById('fm-month').value = 'Nov';
+      document.getElementById('fm-visitor').value = 'Returning_Visitor';
+      document.getElementById('fm-revenue').value = '0';
+      document.getElementById('fm-traffic').value = 2;
+      document.getElementById('fm-region').value = 1;
+      document.getElementById('fm-os').value = 2;
+      document.getElementById('fm-browser').value = 2;
+      document.getElementById('fm-depth').value = 10;
+      document.getElementById('fm-duration').value = 300;
+      document.getElementById('fm-bounce').value = 0.02;
+      document.getElementById('fm-exit').value = 0.05;
+      document.getElementById('fm-pv').value = 0;
+      document.getElementById('fm-special').value = '0';
+      document.getElementById('fm-weekend').value = 0;
+      overlay.classList.add('show');
+      return;
+    }
+    apiGet('/api/m1/session/' + id).then(function (d) {
+      document.getElementById('fm-month').value = d.month || 'Nov';
+      document.getElementById('fm-visitor').value = d.visitorType || 'Returning_Visitor';
+      document.getElementById('fm-revenue').value = String(d.revenue == null ? 0 : d.revenue);
+      document.getElementById('fm-traffic').value = d.trafficType == null ? 1 : d.trafficType;
+      document.getElementById('fm-region').value = d.region == null ? 1 : d.region;
+      document.getElementById('fm-os').value = d.operatingSystems == null ? 1 : d.operatingSystems;
+      document.getElementById('fm-browser').value = d.browser == null ? 1 : d.browser;
+      document.getElementById('fm-depth').value = d.pageDepth == null ? 0 : d.pageDepth;
+      document.getElementById('fm-duration').value = d.totalDuration == null ? 0 : d.totalDuration;
+      document.getElementById('fm-bounce').value = d.bounceRates == null ? 0 : d.bounceRates;
+      document.getElementById('fm-exit').value = d.exitRates == null ? 0 : d.exitRates;
+      document.getElementById('fm-pv').value = d.pageValues == null ? 0 : d.pageValues;
+      document.getElementById('fm-special').value = String(d.specialDay == null ? 0 : d.specialDay);
+      document.getElementById('fm-weekend').value = String(d.weekend == null ? 0 : d.weekend);
+      overlay.classList.add('show');
+    }).catch(function (e) { toast('读取记录失败：' + e.message, 'err'); });
+  }
+
+  function closeModal() {
+    overlay.classList.remove('show');
+    state.editingId = null;
+  }
+
+  document.getElementById('modal-close').addEventListener('click', closeModal);
+  document.getElementById('modal-cancel').addEventListener('click', closeModal);
+  overlay.addEventListener('click', function (e) { if (e.target === overlay) closeModal(); });
+
+  function intVal(id, def) {
+    var v = parseInt(document.getElementById(id).value, 10);
+    return isNaN(v) ? (def || 0) : v;
+  }
+  function floatVal(id, def) {
+    var v = parseFloat(document.getElementById(id).value);
+    return isNaN(v) ? (def || 0) : v;
+  }
+
+  document.getElementById('modal-save').addEventListener('click', function () {
+    var monthName = document.getElementById('fm-month').value;
+    var monthNum = MONTH_NUM[monthName];
+    if (!monthNum) { document.getElementById('modal-hint').textContent = '请选择合法的访问月份'; return; }
+
+    var depth = intVal('fm-depth', 0);
+    var dur = floatVal('fm-duration', 0);
+    var bounce = floatVal('fm-bounce', 0);
+    if (depth < 0 || dur < 0) { document.getElementById('modal-hint').textContent = '页面深度与停留时长不能为负数'; return; }
+    if (bounce < 0 || bounce > 0.2) { document.getElementById('modal-hint').textContent = '跳出率需在 0–0.2 之间'; return; }
+
+    var body = {
+      month: monthName,
+      monthNum: monthNum,
+      visitorType: document.getElementById('fm-visitor').value,
+      revenue: intVal('fm-revenue', 0),
+      weekend: intVal('fm-weekend', 0),
+      trafficType: intVal('fm-traffic', 1),
+      region: intVal('fm-region', 1),
+      operatingSystems: intVal('fm-os', 1),
+      browser: intVal('fm-browser', 1),
+      pageDepth: depth,
+      totalDuration: dur,
+      bounceRates: bounce,
+      exitRates: floatVal('fm-exit', 0),
+      pageValues: floatVal('fm-pv', 0),
+      specialDay: floatVal('fm-special', 0),
+      // 与源数据保持一致的分项口径：按停留时长/深度比例拆分
+      administrative: Math.max(0, Math.round(depth / 10)),
+      administrativeDuration: +(dur * 0.15).toFixed(2),
+      informational: Math.max(0, Math.round(depth / 20)),
+      informationalDuration: +(dur * 0.1).toFixed(2),
+      productRelated: Math.max(0, depth - Math.round(depth / 10) - Math.round(depth / 20)),
+      productRelatedDuration: +(dur * 0.75).toFixed(2),
+      isBounce: bounce >= 0.2 ? 1 : 0
+    };
+
+    var btn = document.getElementById('modal-save');
+    btn.disabled = true;
+    btn.textContent = '保存中…';
+    var req = state.editingId
+      ? apiPut('/api/m1/session/' + state.editingId, body)
+      : apiPost('/api/m1/session', body);
+
+    req.then(function () {
+      toast(state.editingId ? '会话已更新' : '新会话已创建', 'ok');
+      closeModal();
+      loadSessions();
+      loadOverview();
+      loadMonthly();
+    }).catch(function (e) {
+      document.getElementById('modal-hint').textContent = '保存失败：' + e.message;
+    }).then(function () {
+      btn.disabled = false;
+      btn.textContent = '保存';
+    });
+  });
+
+  /* ============================================================
+   * 9. 工具栏事件
+   * ============================================================ */
+  document.getElementById('btn-search').addEventListener('click', function () {
+    state.pageNum = 1;
+    loadSessions();
+  });
+  document.getElementById('btn-reset').addEventListener('click', function () {
+    document.getElementById('f-month').value = '';
+    document.getElementById('f-visitor').value = '';
+    document.getElementById('f-revenue').value = '';
+    state.pageNum = 1;
+    loadSessions();
+  });
+  document.getElementById('btn-add').addEventListener('click', function () { openModal(null); });
+  document.getElementById('btn-refresh-all').addEventListener('click', function () {
+    toast('正在刷新全部数据…');
+    loadAll();
+  });
+  document.getElementById('f-pagesize').addEventListener('change', function (e) {
+    state.pageSize = parseInt(e.target.value, 10) || 5;
+    state.pageNum = 1;
+    loadSessions();
+  });
+  document.getElementById('btn-prev').addEventListener('click', function () {
+    if (state.pageNum > 1) { state.pageNum--; loadSessions(); }
+  });
+  document.getElementById('btn-next').addEventListener('click', function () {
+    var pages = Math.max(1, Math.ceil(state.total / state.pageSize));
+    if (state.pageNum < pages) { state.pageNum++; loadSessions(); }
+  });
+  ['f-month', 'f-visitor', 'f-revenue'].forEach(function (id) {
+    document.getElementById(id).addEventListener('change', function () {
+      state.pageNum = 1;
+      loadSessions();
+    });
+  });
+
+  /* ============================================================
+   * 10. 时钟 / 自动刷新 / 启动
+   * ============================================================ */
+  function tickClock() {
+    var d = new Date();
+    var p2 = function (n) { return n < 10 ? '0' + n : '' + n; };
+    document.getElementById('clock-time').textContent =
+      p2(d.getHours()) + ':' + p2(d.getMinutes()) + ':' + p2(d.getSeconds());
+    var wk = ['星期日', '星期一', '星期二', '星期三', '星期四', '星期五', '星期六'][d.getDay()];
+    document.getElementById('clock-date').textContent =
+      d.getFullYear() + '/' + p2(d.getMonth() + 1) + '/' + p2(d.getDate()) + '　' + wk;
+
+    // 自动刷新倒计时：每秒递减，归零后执行刷新并重置为 60
+    var el = document.getElementById('refresh-text');
+    if (el && state.countdown > 0) {
+      state.countdown--;
+      if (state.countdown <= 0) {
+        doAutoRefresh();
+        state.countdown = 60;
+      }
+      el.textContent = '自动刷新 ' + state.countdown + 's';
+      el.style.color = state.countdown <= 5 ? '#f0b45f' : '';
+    }
+  }
+
+  /* 自动刷新：重新拉取全部统计数据（不动会话表，避免打断用户操作） */
+  function doAutoRefresh() {
+    if (!http) return;
+    loadHealth(); loadOverview(); loadMonthly(); loadVisitor();
+    loadRegion(); loadTraffic(); loadDepth(); loadBounce(); loadWeekend();
+  }
+
+  function boot() {
+    fillMonthSelect();
+    tickClock();
+    setInterval(tickClock, 1000);
+
+    // 绑定图表类型切换按钮（柱状 / 折线 / 面积）
+    bindMonthlySwitch();
+
+    if (!http) {
+      document.getElementById('tbody').innerHTML =
+        '<tr><td colspan="12" style="text-align:center;color:#fda4af;height:80px">'
+        + 'axios 未加载，无法请求后端接口</td></tr>';
+      return;
+    }
+
+    loadAll();
+
+    // 说明：自动刷新改由 tickClock 的倒计时驱动（每 60 秒触发一次 doAutoRefresh），
+    // 此处不再使用独立的 setInterval，避免两套机制重复请求接口。
+
+    // 缩放后重绘（transform scale 不影响 canvas 尺寸，但窗口比例变化时需要）
+    var rt;
+    window.addEventListener('resize', function () {
+      clearTimeout(rt);
+      rt = setTimeout(function () {
+        Object.keys(charts).forEach(function (k) { if (charts[k]) charts[k].resize(); });
+      }, 120);
+    });
+  }
+
+  window.addEventListener('error', function (e) {
+    if (e && e.message) showFatal('页面脚本错误：' + e.message);
+  });
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
+})();
+</script>
+</body>
+</html>
